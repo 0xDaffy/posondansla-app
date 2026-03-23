@@ -1,0 +1,3074 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#2f6d58" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="PosonDansla" />
+    <title>PosonDansla Management System</title>
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" type="image/svg+xml" href="./icons/icon-192.svg" />
+    <link rel="apple-touch-icon" href="./icons/icon-192.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #f5f2ea;
+        --ink: #171412;
+        --muted: #6b625b;
+        --panel: #fffaf3;
+        --line: #e6dbc8;
+        --brand: #2f6d58;
+        --brand-2: #b45d2a;
+        --warn: #c57b1d;
+        --ok: #287f50;
+        --danger: #b64343;
+        --shadow: 0 12px 30px rgba(58, 42, 18, 0.09);
+        --radius: 18px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at 12% 10%, #eed7be 0%, transparent 24%),
+          radial-gradient(circle at 90% 0%, #d3e2d8 0%, transparent 20%),
+          var(--bg);
+        color: var(--ink);
+        font-family: Manrope, "Avenir Next", "Segoe UI", sans-serif;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        min-height: 100vh;
+      }
+
+      .sidebar {
+        background: linear-gradient(170deg, #1f4538, #0f2521 72%);
+        color: #f8f5ef;
+        padding: 28px 18px;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .logo {
+        font-family: Sora, sans-serif;
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 22px;
+      }
+
+      .tag {
+        font-size: 0.8rem;
+        color: #cdd8d1;
+        margin-bottom: 22px;
+      }
+
+      .nav {
+        display: grid;
+        gap: 8px;
+      }
+
+      .side-shortcut {
+        margin-top: 14px;
+        padding-top: 12px;
+        border-top: 1px solid rgba(255, 255, 255, 0.18);
+      }
+
+      .nav button {
+        border: 0;
+        width: 100%;
+        text-align: left;
+        padding: 10px 12px;
+        border-radius: 12px;
+        color: #ecf2ef;
+        background: transparent;
+        font-size: 0.95rem;
+        cursor: pointer;
+      }
+
+      .nav button.active,
+      .nav button:hover {
+        background: rgba(230, 255, 245, 0.14);
+      }
+
+      .side-shortcut .btn {
+        width: 100%;
+        background: var(--brand-2);
+      }
+
+      .mobile-nav {
+        display: none;
+      }
+
+      .main {
+        padding: 22px;
+        max-width: 1320px;
+        width: 100%;
+        margin: 0 auto;
+      }
+
+      .topbar {
+        background: rgba(255, 250, 243, 0.8);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(8px);
+        position: sticky;
+        top: 12px;
+        z-index: 10;
+      }
+
+      .title h1 {
+        margin: 0;
+        font-family: Sora, sans-serif;
+        font-size: 1.2rem;
+      }
+
+      .title p {
+        margin: 2px 0 0;
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+
+      .controls {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+
+      #role-select {
+        min-width: 210px;
+      }
+
+      select,
+      input,
+      textarea,
+      .btn {
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: #fff;
+        color: var(--ink);
+        padding: 8px 10px;
+        font-size: 0.9rem;
+      }
+
+      .btn {
+        background: var(--brand);
+        color: #fff;
+        border: 0;
+        cursor: pointer;
+        font-weight: 700;
+        transition: transform 0.12s ease, opacity 0.2s ease;
+      }
+
+      .btn.secondary {
+        background: var(--brand-2);
+      }
+
+      .btn:hover {
+        transform: translateY(-1px);
+        opacity: 0.95;
+      }
+
+      .section {
+        margin-top: 16px;
+        display: none;
+      }
+
+      .context-bar {
+        margin-top: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 14px;
+      }
+
+      .context-title {
+        margin: 0;
+        font-family: Sora, sans-serif;
+        font-size: 1rem;
+      }
+
+      .context-help {
+        margin: 0;
+        font-size: 0.86rem;
+        color: var(--muted);
+      }
+
+      .section.active {
+        display: block;
+        animation: reveal 0.45s ease;
+      }
+
+      @keyframes reveal {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 14px;
+      }
+
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 14px;
+      }
+
+      .metric {
+        grid-column: span 3;
+      }
+
+      .metric h3 {
+        margin: 0;
+        font-size: 0.86rem;
+        color: var(--muted);
+        font-weight: 600;
+      }
+
+      .metric .value {
+        margin: 10px 0 0;
+        font-size: 1.46rem;
+        font-weight: 800;
+      }
+
+      .metric small {
+        color: var(--muted);
+      }
+
+      .wide {
+        grid-column: span 8;
+      }
+
+      .side {
+        grid-column: span 4;
+      }
+
+      .card h2 {
+        margin: 0 0 12px;
+        font-size: 1rem;
+        font-family: Sora, sans-serif;
+      }
+
+      .table-wrap {
+        overflow: auto;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+      }
+
+      tbody tr:nth-child(even) td {
+        background: rgba(255, 255, 255, 0.55);
+      }
+
+      th,
+      td {
+        text-align: left;
+        padding: 10px 8px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      th {
+        color: var(--muted);
+        font-weight: 700;
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+      }
+
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border-radius: 999px;
+        padding: 5px 9px;
+        font-size: 0.78rem;
+        font-weight: 700;
+      }
+
+      .pending {
+        color: #8b5a00;
+        background: #ffedc8;
+      }
+
+      .approved,
+      .completed {
+        color: #1b633f;
+        background: #d8f5e7;
+      }
+
+      .rejected {
+        color: #842a2a;
+        background: #ffd8d8;
+      }
+
+      .in_progress {
+        color: #234c7f;
+        background: #dbeaff;
+      }
+
+      .progress {
+        background: #e7ddcf;
+        height: 8px;
+        border-radius: 999px;
+        overflow: hidden;
+        margin-top: 8px;
+      }
+
+      .progress > span {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #2f6d58, #b45d2a);
+      }
+
+      .kpi {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+      }
+
+      .notice {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        margin-bottom: 8px;
+        background: #fff;
+      }
+
+      .notice.unread {
+        border-left: 5px solid var(--brand-2);
+      }
+
+      .split {
+        display: grid;
+        gap: 14px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .bill-layout {
+        display: grid;
+        gap: 14px;
+        grid-template-columns: minmax(0, 1fr) 360px;
+        align-items: start;
+      }
+
+      .bill-upload-panel {
+        position: sticky;
+        top: 92px;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      textarea {
+        min-height: 85px;
+        resize: vertical;
+      }
+
+      .form-grid .full {
+        grid-column: 1 / -1;
+      }
+
+      .subtext {
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+
+      .empty {
+        border: 1px dashed var(--line);
+        border-radius: 12px;
+        padding: 14px;
+        background: #fff;
+        color: var(--muted);
+        text-align: center;
+      }
+
+      .tour-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(9, 18, 16, 0.55);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+        z-index: 999;
+      }
+
+      .tour-overlay.show {
+        display: flex;
+      }
+
+      .tour-card {
+        width: min(560px, 100%);
+        background: #fffaf3;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        box-shadow: var(--shadow);
+        padding: 18px;
+      }
+
+      .tour-card h2 {
+        margin: 0 0 8px;
+        font-family: Sora, sans-serif;
+      }
+
+      .tour-meta {
+        color: var(--muted);
+        font-size: 0.85rem;
+        margin-bottom: 10px;
+      }
+
+      .tour-actions {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+        margin-top: 12px;
+      }
+
+      .auth-shell {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 20px;
+      }
+
+      .auth-card {
+        width: min(980px, 100%);
+        background: #fffaf3;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        box-shadow: var(--shadow);
+        padding: 18px;
+      }
+
+      .auth-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .user-card {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 12px;
+        background: #fff;
+        cursor: pointer;
+      }
+
+      .user-card.active {
+        outline: 2px solid #2f6d58;
+      }
+
+      .user-name {
+        margin: 0;
+        font-weight: 800;
+      }
+
+      .user-role {
+        margin: 4px 0 0;
+        color: var(--muted);
+        font-size: 0.88rem;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      #current-user-chip {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 7px 10px;
+        font-size: 0.84rem;
+        color: #3a322c;
+      }
+
+      @media (max-width: 980px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .sidebar {
+          display: none;
+        }
+
+        .mobile-nav {
+          display: flex;
+          gap: 6px;
+          overflow: auto;
+          padding-bottom: 8px;
+          margin-top: 12px;
+        }
+
+        .mobile-nav button {
+          border: 1px solid var(--line);
+          background: #fff;
+          border-radius: 999px;
+          padding: 8px 12px;
+          white-space: nowrap;
+          color: var(--ink);
+        }
+
+        .mobile-nav button.active {
+          background: var(--brand);
+          color: #fff;
+          border-color: transparent;
+        }
+
+        .metric,
+        .wide,
+        .side {
+          grid-column: span 12;
+        }
+
+        .split,
+        .form-grid,
+        .bill-layout {
+          grid-template-columns: 1fr;
+        }
+
+        .bill-upload-panel {
+          position: static;
+          top: auto;
+        }
+
+        .topbar {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 10px;
+          position: static;
+        }
+
+        .controls {
+          flex-wrap: wrap;
+        }
+
+        .context-bar {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .auth-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="auth-shell" id="auth-shell">
+      <div class="auth-card">
+        <h2 style="margin: 0; font-family: Sora, sans-serif">Role Based Login</h2>
+        <p class="subtext" style="margin-top: 4px">Enter username and password. The app will open your role page automatically.</p>
+        <form id="login-form" class="form-grid" style="margin-top: 12px">
+          <input id="login-username" name="username" placeholder="Username" class="full" required />
+          <input id="login-password" name="password" type="password" placeholder="Password" required />
+          <button class="btn" type="submit">Login</button>
+          <div id="login-error" class="full" style="color: #b64343; font-size: 0.88rem"></div>
+        </form>
+      </div>
+    </div>
+
+    <div class="layout hidden" id="app-root">
+      <aside class="sidebar">
+        <div class="logo">PosonDansla</div>
+        <div class="tag">Event Management System</div>
+        <nav class="nav" id="sidebar-nav"></nav>
+        <div class="side-shortcut">
+          <button class="btn" id="sidebar-bill-upload">Bill Upload</button>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <div class="title">
+            <h1>Poson Dansala Project Hub</h1>
+            <p>Real-time planning, finance tracking, and volunteer coordination</p>
+          </div>
+          <div class="controls">
+            <span id="current-user-chip">User: -</span>
+            <button class="btn" id="install-app" style="display: none">Install App</button>
+            <button class="btn secondary" id="logout-btn">Logout</button>
+            <button class="btn secondary" id="open-guide">Guide</button>
+          </div>
+        </header>
+
+        <div class="mobile-nav" id="mobile-nav"></div>
+        <div class="card context-bar">
+          <div>
+            <h2 class="context-title" id="context-title">Dashboard</h2>
+            <p class="context-help" id="context-help">Track live updates and manage event operations.</p>
+          </div>
+          <span class="chip in_progress" id="context-role">Role: Treasurer</span>
+        </div>
+
+        <section class="section active" data-section="dashboard">
+          <div class="grid" id="dashboard-metrics"></div>
+          <div class="grid" style="margin-top: 14px">
+            <div class="card wide">
+              <h2>Task Progress Overview</h2>
+              <div id="task-progress-list"></div>
+            </div>
+            <div class="card side">
+              <h2>Live Activity</h2>
+              <div id="live-activity"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" data-section="finance">
+          <div class="split">
+            <div class="card">
+              <h2>Add Donation</h2>
+              <form class="form-grid" id="donation-form">
+                <input name="donor" placeholder="Donor name" required />
+                <input name="source" placeholder="Source" required />
+                <input name="amount" type="number" min="1" placeholder="Amount" required />
+                <input name="date" type="date" required />
+                <textarea name="note" class="full" placeholder="Note"></textarea>
+                <button class="btn full" type="submit">Save Donation</button>
+                <button class="btn secondary full" type="button" id="donation-cancel-btn" style="display: none">
+                  Cancel Edit
+                </button>
+              </form>
+            </div>
+            <div class="card">
+              <h2>Fund Summary</h2>
+              <div id="fund-summary"></div>
+              <p class="subtext">Fields included: amount, source, donor_name, note, date, added_by.</p>
+            </div>
+          </div>
+          <div class="card" style="margin-top: 14px">
+            <h2>Recent Donations</h2>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Donor</th>
+                    <th>Source</th>
+                    <th>Amount</th>
+                    <th>Added By</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="donation-table"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" data-section="expenses">
+          <div class="card" id="treasurer-direct-spend-card">
+            <h2>Treasurer Direct Spend</h2>
+            <form class="form-grid" id="treasurer-spend-form">
+              <select name="category" required>
+                <option value="Drinks">Drinks</option>
+                <option value="Food">Food</option>
+                <option value="Ice">Ice</option>
+                <option value="Cups">Cups</option>
+                <option value="Equipment">Equipment</option>
+                <option value="Decorations">Decorations</option>
+                <option value="Transport">Transport</option>
+                <option value="Miscellaneous">Miscellaneous</option>
+              </select>
+              <input name="amount" type="number" min="1" placeholder="Amount spent" required />
+              <input name="spentFor" placeholder="Spent for (team/vendor/purpose)" required />
+              <input name="deadline" type="date" />
+              <textarea name="description" class="full" placeholder="Spending details" required></textarea>
+              <button class="btn full" type="submit">Record Direct Spend</button>
+            </form>
+            <p class="subtext">Use this when Treasurer spends money directly from the fund for event needs.</p>
+          </div>
+          <div class="card" id="expense-request-form-card">
+            <h2>Request Expense</h2>
+            <form class="form-grid" id="expense-request-form">
+              <select name="category" required>
+                <option value="Drinks">Drinks</option>
+                <option value="Food">Food</option>
+                <option value="Ice">Ice</option>
+                <option value="Cups">Cups</option>
+                <option value="Equipment">Equipment</option>
+                <option value="Decorations">Decorations</option>
+                <option value="Transport">Transport</option>
+                <option value="Miscellaneous">Miscellaneous</option>
+              </select>
+              <input name="amount" type="number" min="1" placeholder="Amount" required />
+              <input name="deadline" type="date" />
+              <textarea name="description" class="full" placeholder="Expense purpose/details" required></textarea>
+              <button class="btn full" type="submit">Submit Expense Request</button>
+            </form>
+            <p class="subtext">Sub Coordinators, Main Coordinator, and Chairman can request expenses from fund/Treasurer.</p>
+          </div>
+          <div class="card">
+            <h2>Expense Requests</h2>
+            <div id="expense-live-summary" class="subtext" style="margin-bottom: 10px"></div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Category</th>
+                    <th>Description</th>
+                    <th>Requested By</th>
+                    <th>Requested At</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Approval Details</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="expense-table"></tbody>
+              </table>
+            </div>
+            <p class="subtext">Workflow: request -> Main Coordinator approval -> Chairman approval -> Treasurer release.</p>
+          </div>
+          <div class="card" style="margin-top: 14px">
+            <h2>Expense Action Logs</h2>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>When</th>
+                    <th>Category</th>
+                    <th>Action</th>
+                    <th>By</th>
+                  </tr>
+                </thead>
+                <tbody id="expense-log-table"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" data-section="bills">
+          <div class="bill-layout">
+            <div class="card">
+              <h2>Bill Register</h2>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Bill No</th>
+                      <th>Date & Time</th>
+                      <th>Title</th>
+                      <th>Category</th>
+                      <th>Amount</th>
+                      <th>Uploaded By</th>
+                      <th>Role</th>
+                      <th>Proof Note</th>
+                      <th>Photo</th>
+                    </tr>
+                  </thead>
+                  <tbody id="bill-table"></tbody>
+                </table>
+              </div>
+              <p class="subtext">Bill photos are visible only to Chairman and Treasurer.</p>
+            </div>
+            <div class="card bill-upload-panel">
+              <h2>Bill Upload (All Roles)</h2>
+              <form class="form-grid" id="bill-form">
+                <input name="title" placeholder="Bill title" required />
+                <select name="category" required>
+                  <option value="Drinks">Drinks</option>
+                  <option value="Food">Food</option>
+                  <option value="Ice">Ice</option>
+                  <option value="Cups">Cups</option>
+                  <option value="Equipment">Equipment</option>
+                  <option value="Decorations">Decorations</option>
+                  <option value="Transport">Transport</option>
+                  <option value="Miscellaneous">Miscellaneous</option>
+                </select>
+                <input name="amount" type="number" min="1" placeholder="Amount" required />
+                <input name="photo" type="file" accept="image/*" />
+                <textarea name="proofNote" class="full" placeholder="Written proof / bill details" required></textarea>
+                <button class="btn full" type="submit">Upload Bill</button>
+              </form>
+              <p class="subtext">All roles can upload bills. Photo viewing remains role-based by access rules.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" data-section="tasks">
+          <div class="split">
+            <div class="card">
+              <h2>Create Task</h2>
+              <form class="form-grid" id="task-form">
+                <input name="title" placeholder="Task title" required />
+                <input name="assigned" placeholder="Assigned to" required />
+                <input name="deadline" type="date" required />
+                <select name="status">
+                  <option value="pending">pending</option>
+                  <option value="in_progress">in_progress</option>
+                  <option value="completed">completed</option>
+                </select>
+                <textarea name="description" class="full" placeholder="Description"></textarea>
+                <button class="btn full" type="submit">Create Task</button>
+              </form>
+            </div>
+            <div class="card">
+              <h2>Task Completion</h2>
+              <div id="task-stats"></div>
+            </div>
+          </div>
+          <div class="split" style="margin-top: 14px" id="task-request-split">
+            <div class="card" id="sub-task-request-card">
+              <h2>Sub Coordinator Task Request</h2>
+              <form class="form-grid" id="task-request-form">
+                <input name="title" placeholder="Requested task title" required />
+                <input name="requestedBy" placeholder="Requested by (Sub Coordinator name)" required />
+                <input name="deadline" type="date" required />
+                <select name="priority">
+                  <option value="low">low</option>
+                  <option value="medium">medium</option>
+                  <option value="high">high</option>
+                </select>
+                <textarea name="note" class="full" placeholder="Task request details"></textarea>
+                <button class="btn full" type="submit">Submit Task Request</button>
+              </form>
+              <p class="subtext">Sub Coordinators can request tasks here. Main Coordinator can review and assign.</p>
+            </div>
+            <div class="card" id="task-request-list-card">
+              <h2>Task Requests</h2>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Title</th>
+                      <th>Requested By</th>
+                      <th>Deadline</th>
+                      <th>Priority</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="task-request-table"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="card" style="margin-top: 14px">
+            <h2>All Tasks</h2>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Assigned To</th>
+                    <th>Deadline</th>
+                    <th>Status</th>
+                    <th>Progress</th>
+                    <th>Created By</th>
+                    <th>Created At</th>
+                    <th>Update</th>
+                  </tr>
+                </thead>
+                <tbody id="task-table"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card" style="margin-top: 14px">
+            <h2>Task Activity Logs</h2>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>When</th>
+                    <th>Task</th>
+                    <th>Action</th>
+                    <th>By</th>
+                  </tr>
+                </thead>
+                <tbody id="task-log-table"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" data-section="reports">
+          <div class="split">
+            <div class="card">
+              <h2>Financial Report</h2>
+              <div id="financial-report"></div>
+              <button class="btn" data-export="financial">Export CSV</button>
+              <button class="btn secondary" data-export="financial">Export PDF</button>
+            </div>
+            <div class="card">
+              <h2>Task Report</h2>
+              <div id="task-report"></div>
+              <button class="btn" data-export="task">Export CSV</button>
+              <button class="btn secondary" data-export="task">Export PDF</button>
+            </div>
+          </div>
+          <div class="card" style="margin-top: 14px">
+            <h2>Expense Categories</h2>
+            <div id="expense-category-report"></div>
+          </div>
+        </section>
+
+        <section class="section" data-section="notifications">
+          <div class="card">
+            <h2>Notifications</h2>
+            <div id="notifications-list"></div>
+          </div>
+          <div class="split" style="margin-top: 14px">
+            <div class="card" id="coordinator-chairman-request-card">
+              <h2>Main Coordinator Request to Chairman</h2>
+              <form class="form-grid" id="chairman-request-form">
+                <input name="subject" placeholder="Request subject" required />
+                <select name="priority">
+                  <option value="low">low</option>
+                  <option value="medium">medium</option>
+                  <option value="high">high</option>
+                </select>
+                <textarea name="message" class="full" placeholder="Request details" required></textarea>
+                <button class="btn full" type="submit">Send Request</button>
+              </form>
+              <p class="subtext">Only Main Coordinator can send requests here.</p>
+            </div>
+            <div class="card" id="chairman-announcement-card">
+              <h2>Chairman Announcements</h2>
+              <form class="form-grid" id="announcement-form">
+                <input name="title" placeholder="Announcement title" required />
+                <select name="visibility" id="announcement-visibility">
+                  <option value="all">Visible to all users</option>
+                  <option value="main_coordinator">Visible only to Main Coordinator</option>
+                  <option value="sub_mention">Visible only to mentioned Sub Coordinator</option>
+                </select>
+                <input
+                  name="mentionTo"
+                  id="announcement-mention"
+                  class="full"
+                  placeholder="Mention Sub username (required for Sub mention)"
+                  style="display: none"
+                />
+                <textarea name="message" class="full" placeholder="Announcement message" required></textarea>
+                <button class="btn full" type="submit">Publish Announcement</button>
+              </form>
+              <p class="subtext">Only Chairman can publish and control who can view announcements.</p>
+            </div>
+          </div>
+          <div class="card" style="margin-top: 14px">
+            <h2>Announcement Feed</h2>
+            <div id="announcement-feed"></div>
+          </div>
+          <div class="card" style="margin-top: 14px" id="chairman-request-inbox-card">
+            <h2>Coordinator Requests Inbox (Chairman)</h2>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>When</th>
+                    <th>Subject</th>
+                    <th>Priority</th>
+                    <th>Message</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="chairman-request-inbox"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" data-section="users">
+          <div class="card">
+            <h2>Role Permissions</h2>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Role</th>
+                    <th>Permissions</th>
+                  </tr>
+                </thead>
+                <tbody id="roles-table"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="split" style="margin-top: 14px">
+            <div class="card">
+              <h2>Add Sub Coordinator</h2>
+              <form class="form-grid" id="sub-coordinator-form">
+                <input name="name" placeholder="Sub Coordinator name" required />
+                <input name="contact" placeholder="Phone/Email" required />
+                <input name="username" placeholder="Username" required />
+                <input name="password" type="password" placeholder="Password" required />
+                <button class="btn full" type="submit">Add Sub Coordinator</button>
+              </form>
+              <p class="subtext">Only Main Coordinator can add Sub Coordinators.</p>
+            </div>
+            <div class="card">
+              <h2>Sub Coordinator List</h2>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Username</th>
+                      <th>Contact</th>
+                      <th>Added By</th>
+                      <th>Added At</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="sub-coordinator-table"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" data-section="settings">
+          <div class="split">
+            <div class="card">
+              <h2>System Settings</h2>
+              <form class="form-grid">
+                <input value="PosonDansla Event" />
+                <input value="Asia/Colombo" />
+                <select>
+                  <option>Supabase</option>
+                  <option>Firebase</option>
+                </select>
+                <select>
+                  <option>English</option>
+                  <option>Sinhala</option>
+                </select>
+                <button type="button" class="btn full">Save Settings</button>
+              </form>
+            </div>
+            <div class="card">
+              <h2>Account Security</h2>
+              <form class="form-grid" id="password-form">
+                <input id="password-username" readonly class="full" />
+                <input name="newUsername" placeholder="New username (optional)" class="full" />
+                <input name="newDisplayName" placeholder="New display name (optional)" class="full" />
+                <input name="currentPassword" type="password" placeholder="Current password" required />
+                <input name="newPassword" type="password" placeholder="New password" required />
+                <input name="confirmPassword" type="password" placeholder="Confirm new password" class="full" required />
+                <button type="submit" class="btn full">Update Password</button>
+                <div id="password-msg" class="full subtext"></div>
+              </form>
+              <p class="subtext" style="margin-top: 10px">Role-based access control, protected routes, secure authentication, input validation.</p>
+              <ul>
+                <li>Enforce role access matrix</li>
+                <li>Require secure session handling</li>
+                <li>Validate amount and date inputs</li>
+                <li>Restrict bill upload to JPG/PNG/PDF</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div class="tour-overlay" id="tour-overlay" role="dialog" aria-modal="true" aria-label="App guide">
+      <div class="tour-card">
+        <h2 id="tour-title">Welcome</h2>
+        <p class="tour-meta" id="tour-step">Step 1 of 4</p>
+        <p id="tour-text"></p>
+        <div class="tour-actions">
+          <button class="btn secondary" id="tour-skip">Skip</button>
+          <button class="btn secondary" id="tour-prev">Back</button>
+          <button class="btn" id="tour-next">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+      const SUPABASE_URL = "https://bhmxzudqvipcuowgkswq.supabase.co";
+      const SUPABASE_ANON_KEY =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJobXh6dWRxdmlwY3Vvd2drc3dxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyNTA2MjksImV4cCI6MjA4OTgyNjYyOX0.TcnedFQTIZjOexm474moftPFhwxOQ1bSP6cMI2k3drg";
+      const REMOTE_STATE_ID = "global";
+      const LOCAL_STATE_KEY = "pdms_state_v1";
+      const DATA_RESET_VERSION = "2026-03-23-clear-entered-data-v1";
+      const supabaseClient =
+        window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY
+          ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+          : null;
+      let isHydratingRemote = false;
+      let saveTimer = null;
+      let supabaseSessionReady = null;
+      let forceClearDataPending = false;
+
+      const roles = {
+        chairman: {
+          name: "Chairman",
+          permissions: ["View all dashboards", "View financial reports", "Monitor tasks and progress", "Publish targeted announcements", "Approve expense requests", "Assign work to Main Coordinator"],
+          sections: ["dashboard", "tasks", "expenses", "bills", "reports", "notifications", "users", "settings"]
+        },
+        treasurer: {
+          name: "Treasurer",
+          permissions: ["Add funds", "Release approved expenses", "Upload bills", "Generate financial reports"],
+          sections: ["dashboard", "finance", "expenses", "bills", "reports", "notifications", "settings"]
+        },
+        coordinator: {
+          name: "Main Coordinator",
+          permissions: ["Create tasks", "Assign tasks", "Request funds", "Update progress", "Add sub coordinators", "Send requests to Chairman", "Approve sub coordinator expenses"],
+          sections: ["dashboard", "tasks", "expenses", "bills", "notifications", "users", "settings"]
+        },
+        sub: {
+          name: "Sub Coordinator",
+          permissions: ["Review assigned tasks", "Maintain task progress", "Submit expense requests", "Upload bills", "Request tasks from coordinator"],
+          sections: ["dashboard", "tasks", "expenses", "bills", "notifications", "settings"]
+        }
+      };
+
+      const sectionLabels = {
+        dashboard: "Dashboard",
+        finance: "Finance",
+        expenses: "Expense Requests",
+        bills: "Bills",
+        tasks: "Tasks",
+        reports: "Reports",
+        notifications: "Notifications",
+        users: "Users",
+        settings: "Settings"
+      };
+
+      const sectionHelp = {
+        dashboard: "Track live updates and manage event operations.",
+        finance: "Add donations and monitor current fund balance.",
+        expenses: "Handle requests, approvals, releases, and bill proofs.",
+        bills: "Upload bills and review the bill register in one dedicated space.",
+        tasks: "Create tasks, update progress, and monitor task logs.",
+        reports: "Review summaries before exporting CSV/PDF reports.",
+        notifications: "Follow important alerts, announcements, and approvals.",
+        users: "Manage roles, permissions, and sub coordinator list.",
+        settings: "Configure system preferences and security checklist."
+      };
+
+      const defaultUsers = [
+        { id: "u-chairman", username: "chairman", name: "Chairman Nimal", role: "chairman", password: "1234" },
+        { id: "u-treasurer", username: "treasurer", name: "Treasurer Saman", role: "treasurer", password: "1234" },
+        { id: "u-main", username: "maincoordinator", name: "Main Coordinator Kasun", role: "coordinator", password: "1234" }
+      ];
+      const appUsers = defaultUsers.map((u) => ({ ...u }));
+
+      const state = {
+        role: "treasurer",
+        activeSubCoordinator: "",
+        currentUserId: "",
+        sessionDisplayName: "",
+        editingDonationIndex: -1,
+        funds: [],
+        expenses: [],
+        tasks: [],
+        notifications: [],
+        subCoordinators: [],
+        taskRequests: [],
+        taskLogs: [],
+        chairmanRequests: [],
+        announcements: [],
+        expenseLogs: [],
+        bills: []
+      };
+
+      function getPersistableState() {
+        return {
+          funds: state.funds,
+          expenses: state.expenses,
+          tasks: state.tasks,
+          notifications: state.notifications,
+          subCoordinators: state.subCoordinators,
+          taskRequests: state.taskRequests,
+          taskLogs: state.taskLogs,
+          chairmanRequests: state.chairmanRequests,
+          announcements: state.announcements,
+          expenseLogs: state.expenseLogs,
+          bills: state.bills
+        };
+      }
+
+      function applyPersistedState(payload) {
+        if (!payload || typeof payload !== "object") return;
+        state.funds = Array.isArray(payload.funds) ? payload.funds : [];
+        state.expenses = Array.isArray(payload.expenses) ? payload.expenses : [];
+        state.tasks = Array.isArray(payload.tasks) ? payload.tasks : [];
+        state.notifications = Array.isArray(payload.notifications) ? payload.notifications : [];
+        state.subCoordinators = Array.isArray(payload.subCoordinators) ? payload.subCoordinators : [];
+        state.taskRequests = Array.isArray(payload.taskRequests) ? payload.taskRequests : [];
+        state.taskLogs = Array.isArray(payload.taskLogs) ? payload.taskLogs : [];
+        state.chairmanRequests = Array.isArray(payload.chairmanRequests) ? payload.chairmanRequests : [];
+        state.announcements = Array.isArray(payload.announcements) ? payload.announcements : [];
+        state.expenseLogs = Array.isArray(payload.expenseLogs) ? payload.expenseLogs : [];
+        state.bills = Array.isArray(payload.bills) ? payload.bills : [];
+      }
+
+      function loadLocalState() {
+        try {
+          const raw = localStorage.getItem(LOCAL_STATE_KEY);
+          if (!raw) return;
+          const parsed = JSON.parse(raw);
+          applyPersistedState(parsed);
+        } catch (_) {}
+      }
+
+      function saveLocalState() {
+        try {
+          localStorage.setItem(LOCAL_STATE_KEY, JSON.stringify(getPersistableState()));
+        } catch (_) {}
+      }
+
+      function clearAppDataInMemory() {
+        state.funds = [];
+        state.expenses = [];
+        state.tasks = [];
+        state.notifications = [];
+        state.subCoordinators = [];
+        state.taskRequests = [];
+        state.taskLogs = [];
+        state.chairmanRequests = [];
+        state.announcements = [];
+        state.expenseLogs = [];
+        state.bills = [];
+      }
+
+      function applyOneTimeDataClear() {
+        try {
+          const applied = localStorage.getItem("pdms_data_reset_version");
+          if (applied === DATA_RESET_VERSION) return;
+          localStorage.removeItem(LOCAL_STATE_KEY);
+          clearAppDataInMemory();
+          localStorage.setItem("pdms_data_reset_version", DATA_RESET_VERSION);
+          forceClearDataPending = true;
+        } catch (_) {}
+      }
+
+      function hasAnyData(payload) {
+        if (!payload || typeof payload !== "object") return false;
+        return [
+          "funds",
+          "expenses",
+          "tasks",
+          "notifications",
+          "subCoordinators",
+          "taskRequests",
+          "taskLogs",
+          "chairmanRequests",
+          "announcements",
+          "expenseLogs",
+          "bills"
+        ].some((key) => Array.isArray(payload[key]) && payload[key].length > 0);
+      }
+
+      async function ensureSupabaseSession() {
+        if (!supabaseClient) return false;
+        if (supabaseSessionReady) return supabaseSessionReady;
+        supabaseSessionReady = (async () => {
+          try {
+            const {
+              data: { session }
+            } = await supabaseClient.auth.getSession();
+            if (session) return true;
+            const { error } = await supabaseClient.auth.signInAnonymously();
+            return !error;
+          } catch (_) {
+            return false;
+          }
+        })();
+        return supabaseSessionReady;
+      }
+
+      async function loadRemoteState() {
+        if (!supabaseClient) return;
+        const ready = await ensureSupabaseSession();
+        if (!ready) return;
+        const { data, error } = await supabaseClient.from("app_state").select("data").eq("id", REMOTE_STATE_ID).maybeSingle();
+        if (error) return;
+        if (data?.data) {
+          const localPayload = getPersistableState();
+          const remoteHasData = hasAnyData(data.data);
+          const localHasData = hasAnyData(localPayload);
+          if (remoteHasData || !localHasData) {
+            applyPersistedState(data.data);
+            saveLocalState();
+          }
+        }
+      }
+
+      async function saveRemoteState() {
+        if (!supabaseClient) return;
+        const ready = await ensureSupabaseSession();
+        if (!ready) return;
+        const payload = getPersistableState();
+        await supabaseClient
+          .from("app_state")
+          .upsert({ id: REMOTE_STATE_ID, data: payload, updated_at: new Date().toISOString() }, { onConflict: "id" });
+      }
+
+      function queueRemoteSave() {
+        saveLocalState();
+        if (isHydratingRemote) return;
+        if (!supabaseClient) return;
+        if (saveTimer) clearTimeout(saveTimer);
+        saveTimer = setTimeout(() => {
+          saveRemoteState();
+        }, 700);
+      }
+
+      const tourSteps = [
+        {
+          title: "Welcome to PosonDansla",
+          text: "This app helps you manage donations, expenses, tasks, reports, and team coordination in one place."
+        },
+        {
+          title: "Set Your Role",
+          text: "Use the role switcher on the top-right to preview chairman, treasurer, coordinator, and sub coordinator views."
+        },
+        {
+          title: "Start With Core Records",
+          text: "Open Finance to add donations, then create tasks and expense requests so dashboards and reports become active."
+        },
+        {
+          title: "Track Progress and Reports",
+          text: "Use Dashboard for real-time status, Notifications for updates, and Reports to export CSV/PDF summaries."
+        }
+      ];
+      let tourIndex = 0;
+
+      const fmt = new Intl.NumberFormat("en-LK", { style: "currency", currency: "LKR", maximumFractionDigits: 0 });
+
+      function qs(selector) {
+        return document.querySelector(selector);
+      }
+
+      function nowStamp() {
+        return new Date().toISOString().slice(0, 19).replace("T", " ");
+      }
+
+      function todayISO() {
+        return new Date().toISOString().slice(0, 10);
+      }
+
+      function loadSavedAuth() {
+        try {
+          const raw = localStorage.getItem("pdms_user_auth");
+          if (!raw) return;
+          const map = JSON.parse(raw);
+          appUsers.forEach((u) => {
+            if (map[u.id]?.password) u.password = map[u.id].password;
+            if (map[u.id]?.username) u.username = map[u.id].username;
+            if (map[u.id]?.name) u.name = map[u.id].name;
+          });
+          // Remove stale credential entries that do not belong to current users.
+          Object.keys(map).forEach((id) => {
+            if (!appUsers.some((u) => u.id === id)) delete map[id];
+          });
+          localStorage.setItem("pdms_user_auth", JSON.stringify(map));
+        } catch (_) {}
+      }
+
+      function saveUserAuth(userId, updates) {
+        try {
+          const raw = localStorage.getItem("pdms_user_auth");
+          const map = raw ? JSON.parse(raw) : {};
+          map[userId] = { ...(map[userId] || {}), ...updates };
+          localStorage.setItem("pdms_user_auth", JSON.stringify(map));
+        } catch (_) {}
+      }
+
+      function loadCustomUsers() {
+        try {
+          // One-time cleanup: remove legacy sub coordinator account cache.
+          if (!localStorage.getItem("pdms_sub_cleanup_done")) {
+            localStorage.removeItem("pdms_custom_users");
+            localStorage.setItem("pdms_sub_cleanup_done", "1");
+          }
+          const raw = localStorage.getItem("pdms_custom_users");
+          if (!raw) return;
+          const list = JSON.parse(raw);
+          if (!Array.isArray(list)) return;
+          list.forEach((u) => {
+            if (!u?.id || !u?.username || !u?.role) return;
+            if (!appUsers.some((x) => x.id === u.id)) appUsers.push(u);
+          });
+        } catch (_) {}
+      }
+
+      function saveCustomUsers() {
+        try {
+          const custom = appUsers.filter((u) => u.id.startsWith("u-sub-custom-"));
+          localStorage.setItem("pdms_custom_users", JSON.stringify(custom));
+        } catch (_) {}
+      }
+
+      function removeUserAuth(userId) {
+        try {
+          const raw = localStorage.getItem("pdms_user_auth");
+          if (!raw) return;
+          const map = JSON.parse(raw);
+          delete map[userId];
+          localStorage.setItem("pdms_user_auth", JSON.stringify(map));
+        } catch (_) {}
+      }
+
+      function actorName() {
+        if (state.sessionDisplayName) return state.sessionDisplayName;
+        if (state.currentUserId) {
+          const me = appUsers.find((u) => u.id === state.currentUserId);
+          if (me) return me.name;
+        }
+        if (state.role === "sub" && state.activeSubCoordinator) return state.activeSubCoordinator;
+        return roles[state.role].name;
+      }
+
+      function currentRoleSelectValue() {
+        if (state.role === "sub" && state.activeSubCoordinator) return `sub::${state.activeSubCoordinator}`;
+        return state.role;
+      }
+
+      function setRoleFromSelect(value) {
+        if (value.startsWith("sub::")) {
+          state.role = "sub";
+          state.activeSubCoordinator = value.replace("sub::", "");
+          return;
+        }
+        state.role = value;
+        state.activeSubCoordinator = "";
+      }
+
+      function renderRoleSelect() {
+        const roleSelect = qs("#role-select");
+        if (!roleSelect) return;
+        const baseOptions = ["chairman", "treasurer", "coordinator"]
+          .map((key) => `<option value="${key}">${roles[key].name}</option>`)
+          .join("");
+        const subOptions = state.subCoordinators
+          .map((sub) => `<option value="sub::${sub.name}">Sub Co - ${sub.name}</option>`)
+          .join("");
+        roleSelect.innerHTML = baseOptions + subOptions;
+
+        const wanted = currentRoleSelectValue();
+        const exists = Array.from(roleSelect.options).some((opt) => opt.value === wanted);
+        if (exists) {
+          roleSelect.value = wanted;
+          return;
+        }
+        roleSelect.value = "treasurer";
+        state.role = "treasurer";
+        state.activeSubCoordinator = "";
+      }
+
+      function renderCurrentUserChip() {
+        const chip = qs("#current-user-chip");
+        if (!chip) return;
+        const me = appUsers.find((u) => u.id === state.currentUserId);
+        chip.textContent = me ? `${actorName()} (${roles[state.role].name})` : "User: -";
+        const username = qs("#password-username");
+        if (username) username.value = me ? `Username: ${me.username}` : "";
+      }
+
+      function ensureDefaultSubProfiles() {
+        const defaultSubs = appUsers
+          .filter((u) => u.role === "sub")
+          .map((u) => ({ id: u.id, name: u.name, username: u.username, contact: "-", addedBy: "System", addedAt: "-" }));
+        defaultSubs.forEach((sub) => {
+          if (!state.subCoordinators.some((s) => (s.id && sub.id ? s.id === sub.id : s.name === sub.name))) state.subCoordinators.push(sub);
+        });
+      }
+
+      async function loginAs(user, displayName = "") {
+        state.currentUserId = user.id;
+        state.role = user.role;
+        state.sessionDisplayName = displayName || user.name;
+        state.activeSubCoordinator = user.role === "sub" ? user.name : "";
+        ensureDefaultSubProfiles();
+        qs("#auth-shell").classList.add("hidden");
+        qs("#app-root").classList.remove("hidden");
+        isHydratingRemote = true;
+        if (forceClearDataPending) {
+          clearAppDataInMemory();
+          saveLocalState();
+          await saveRemoteState();
+          forceClearDataPending = false;
+        } else {
+          await loadRemoteState();
+        }
+        try {
+          if (!localStorage.getItem("pdms_sub_cleanup_remote_done")) {
+            state.subCoordinators = [];
+            localStorage.setItem("pdms_sub_cleanup_remote_done", "1");
+          }
+        } catch (_) {}
+        ensureDefaultSubProfiles();
+        isHydratingRemote = false;
+        renderNav();
+        refresh();
+      }
+
+      function bindAuth() {
+        const form = qs("#login-form");
+        const usernameInput = qs("#login-username");
+        const passwordInput = qs("#login-password");
+        const errorEl = qs("#login-error");
+
+        if (usernameInput) usernameInput.addEventListener("input", () => errorEl && (errorEl.textContent = ""));
+        if (passwordInput) passwordInput.addEventListener("input", () => errorEl && (errorEl.textContent = ""));
+
+        form.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const formData = new FormData(form);
+          const enteredUsername = String(formData.get("username") || "").trim();
+          const username = enteredUsername.toLowerCase();
+          const password = String(formData.get("password") || "");
+          const user = appUsers.find((u) => {
+            const userMatch = u.username.toLowerCase() === username;
+            const nameMatch = u.name.toLowerCase() === username;
+            return userMatch || nameMatch;
+          });
+          if (!user || user.password !== password) {
+            errorEl.textContent = "Invalid username or password.";
+            return;
+          }
+          if (errorEl) errorEl.textContent = "";
+          await loginAs(user, user.name);
+          form.reset();
+        });
+
+        qs("#logout-btn").addEventListener("click", () => {
+          state.currentUserId = "";
+          state.activeSubCoordinator = "";
+          state.sessionDisplayName = "";
+          qs("#app-root").classList.add("hidden");
+          qs("#auth-shell").classList.remove("hidden");
+        });
+
+        const billShortcut = qs("#sidebar-bill-upload");
+        if (billShortcut) {
+          billShortcut.addEventListener("click", () => {
+            if (!state.currentUserId) return;
+            openBillUploadPanel();
+          });
+        }
+      }
+
+      function renderNav() {
+        const allowed = roles[state.role].sections;
+        const html = allowed
+          .map((section, i) => `<button data-go="${section}" class="${i === 0 ? "active" : ""}">${sectionLabels[section]}</button>`)
+          .join("");
+
+        qs("#sidebar-nav").innerHTML = html;
+        qs("#mobile-nav").innerHTML = html;
+
+        document.querySelectorAll("[data-go]").forEach((btn) => {
+          btn.addEventListener("click", () => openSection(btn.dataset.go));
+        });
+
+        openSection(allowed[0]);
+      }
+
+      function openSection(name) {
+        document.querySelectorAll(".section").forEach((el) => {
+          el.classList.toggle("active", el.dataset.section === name);
+        });
+
+        document.querySelectorAll("[data-go]").forEach((el) => {
+          el.classList.toggle("active", el.dataset.go === name);
+        });
+        renderContextBar(name);
+      }
+
+      function openBillUploadPanel() {
+        openSection("bills");
+        const panel = qs(".bill-upload-panel");
+        if (panel) panel.scrollIntoView({ behavior: "smooth", block: "start" });
+        const titleInput = qs('#bill-form input[name="title"]');
+        if (titleInput) titleInput.focus();
+      }
+
+      function roleGuidance() {
+        if (state.role === "chairman") return "Chairman view: approvals, oversight, and announcements.";
+        if (state.role === "treasurer") return "Treasurer view: fund records, release flow, and bill validation.";
+        if (state.role === "coordinator") return "Main Coordinator view: tasks, team coordination, and approvals.";
+        return `Sub Coordinator view: assigned tasks, progress updates, and expense requests.`;
+      }
+
+      function renderContextBar(sectionName) {
+        qs("#context-title").textContent = sectionLabels[sectionName] || "Dashboard";
+        qs("#context-help").textContent = `${sectionHelp[sectionName] || ""} ${roleGuidance()}`.trim();
+        qs("#context-role").textContent = `Role: ${actorName()}`;
+      }
+
+      function sumFunds() {
+        return state.funds.reduce((a, b) => a + b.amount, 0);
+      }
+
+      function totalBillExpenses() {
+        return state.bills.reduce((a, b) => a + b.amount, 0);
+      }
+
+      function approvedExpenses() {
+        const releasedExpenses = state.expenses
+          .filter((x) => x.status === "released" || x.status === "approved")
+          .reduce((a, b) => a + b.amount, 0);
+        return releasedExpenses + totalBillExpenses();
+      }
+
+      function expenseStatusMeta(expense) {
+        const status = expense.status;
+        if (status === "pending_main") return { label: "pending main coordinator", chip: "pending" };
+        if (status === "pending_chairman") return { label: "pending chairman", chip: "pending" };
+        if (status === "pending_treasurer") return { label: "pending treasurer release", chip: "in_progress" };
+        if (status === "released") return { label: "released", chip: "approved" };
+        if (status === "approved") return { label: "approved", chip: "approved" };
+        if (status === "rejected") return { label: "rejected", chip: "rejected" };
+        return { label: status || "pending", chip: "pending" };
+      }
+
+      function visibleTasksForRole() {
+        if (state.role === "chairman") return state.tasks;
+        if (state.role === "coordinator") return state.tasks.filter((t) => isCoordinatorScopeTask(t));
+        if (state.role === "sub") return state.tasks.filter((t) => roleByActorName(t.createdBy) === "coordinator");
+        if (state.role === "treasurer") return state.tasks.filter((t) => t.createdBy !== "Chairman");
+        return state.tasks;
+      }
+
+      function visibleTaskEntriesForRole() {
+        return state.tasks
+          .map((task, index) => ({ task, index }))
+          .filter(({ task }) => {
+            if (state.role === "chairman") return true;
+            if (state.role === "coordinator") return isCoordinatorScopeTask(task);
+            if (state.role === "sub") return roleByActorName(task.createdBy) === "coordinator";
+            if (state.role === "treasurer") return task.createdBy !== "Chairman";
+            return true;
+          });
+      }
+
+      function canViewBillPhoto() {
+        return state.role === "chairman" || state.role === "treasurer";
+      }
+
+      function visibleBillsForRole() {
+        if (state.role === "chairman" || state.role === "treasurer") return state.bills;
+        if (state.role === "coordinator") return state.bills.filter((b) => b.uploadedByRole === "Sub Coordinator");
+        if (state.role === "sub") return state.bills.filter((b) => b.uploadedBy === actorName());
+        return [];
+      }
+
+      function canViewFundAmount() {
+        return state.role === "chairman" || state.role === "treasurer";
+      }
+
+      function currentUser() {
+        if (!state.currentUserId) return null;
+        return appUsers.find((u) => u.id === state.currentUserId) || null;
+      }
+
+      function roleByActorName(name) {
+        const normalized = String(name || "").trim().toLowerCase();
+        if (!normalized) return "";
+        const user = appUsers.find((u) => String(u.name || "").trim().toLowerCase() === normalized);
+        if (user?.role) return user.role;
+        if (normalized.includes("chairman")) return "chairman";
+        if (normalized.includes("treasurer")) return "treasurer";
+        if (normalized.includes("main coordinator")) return "coordinator";
+        if (normalized.includes("sub")) return "sub";
+        return "";
+      }
+
+      function isCoordinatorOrSubActor(name) {
+        const role = roleByActorName(name);
+        if (role === "coordinator" || role === "sub") return true;
+        return isSubCoordinatorActor(name);
+      }
+
+      function isCoordinatorScopeTask(task) {
+        const assigned = String(task.assignedTo || "").trim().toLowerCase();
+        const createdBy = String(task.createdBy || "");
+        if (isCoordinatorOrSubActor(createdBy)) return true;
+        if (assigned.includes("main coordinator")) return true;
+        if (isSubCoordinatorActor(task.assignedTo)) return true;
+        const me = String(actorName() || "").trim().toLowerCase();
+        if (assigned && assigned === me) return true;
+        return false;
+      }
+
+      function isAnnouncementMentionedToCurrentSub(announcement) {
+        if (state.role !== "sub") return false;
+        const me = currentUser();
+        if (!me) return false;
+        const mention = String(announcement.mentionTo || "").trim().toLowerCase();
+        if (!mention) return false;
+        return mention === String(me.username || "").trim().toLowerCase() || mention === String(me.name || "").trim().toLowerCase();
+      }
+
+      function visibleNotificationsForRole() {
+        if (state.role === "chairman") return state.notifications;
+        const me = currentUser();
+        const myUsername = String(me?.username || "").trim().toLowerCase();
+        if (state.role === "sub") {
+          return state.notifications.filter((n) => {
+            const uid = String(n.userId || "").trim().toLowerCase();
+            return uid === "sub" || uid === `sub:${myUsername}`;
+          });
+        }
+        if (state.role === "coordinator") {
+          return state.notifications.filter((n) => {
+            const uid = String(n.userId || "").trim().toLowerCase();
+            return uid === "all" || uid === "coordinator" || uid === "sub";
+          });
+        }
+        if (state.role === "treasurer") {
+          return state.notifications.filter((n) => {
+            const uid = String(n.userId || "").trim().toLowerCase();
+            return uid === "all" || uid === "treasurer";
+          });
+        }
+        return state.notifications;
+      }
+
+      function isSubCoordinatorActor(name) {
+        const normalized = String(name || "").trim().toLowerCase();
+        if (!normalized) return false;
+        const existsInUsers = appUsers.some((u) => u.role === "sub" && String(u.name || "").trim().toLowerCase() === normalized);
+        if (existsInUsers) return true;
+        return state.subCoordinators.some((s) => String(s.name || "").trim().toLowerCase() === normalized);
+      }
+
+      function visibleExpenseEntriesForRole() {
+        const entries = state.expenses.map((expense, index) => ({ expense, index }));
+        if (state.role === "coordinator") {
+          return entries.filter(
+            ({ expense }) => expense.requestedByRole === "Main Coordinator" || expense.requestedByRole === "Sub Coordinator"
+          );
+        }
+        if (state.role === "sub") {
+          const me = String(actorName() || "").trim().toLowerCase();
+          return entries.filter(({ expense }) => String(expense.requestedBy || "").trim().toLowerCase() === me);
+        }
+        return entries;
+      }
+
+      function visibleExpenseLogsForRole() {
+        if (state.role === "sub") {
+          const me = String(actorName() || "").trim().toLowerCase();
+          return state.expenseLogs.filter((log) => String(log.by || "").trim().toLowerCase() === me);
+        }
+        if (state.role !== "coordinator") return state.expenseLogs;
+        const me = String(actorName() || "").trim().toLowerCase();
+        return state.expenseLogs.filter((log) => {
+          const by = String(log.by || "").trim().toLowerCase();
+          return by === me || isSubCoordinatorActor(log.by);
+        });
+      }
+
+      function liveActivityFeedForRole() {
+        if (state.role === "sub") {
+          const me = String(actorName() || "").trim().toLowerCase();
+          const taskActivity = state.taskLogs
+            .filter((log) => String(log.by || "").trim().toLowerCase() === me)
+            .map((log) => ({
+              message: `Task: ${log.task} - ${log.action} (${log.by})`,
+              timestamp: String(log.when || "").slice(0, 16),
+              isRead: false
+            }));
+          const expenseActivity = state.expenseLogs
+            .filter((log) => String(log.by || "").trim().toLowerCase() === me)
+            .map((log) => ({
+              message: `Expense: ${log.category} - ${log.action} (${log.by})`,
+              timestamp: String(log.when || "").slice(0, 16),
+              isRead: false
+            }));
+          return [...taskActivity, ...expenseActivity].sort((a, b) => String(b.timestamp).localeCompare(String(a.timestamp)));
+        }
+        if (state.role !== "coordinator") return state.notifications;
+        const me = String(actorName() || "").trim().toLowerCase();
+        const taskActivity = state.taskLogs
+          .filter((log) => {
+            const by = String(log.by || "").trim().toLowerCase();
+            return by === me || isSubCoordinatorActor(log.by);
+          })
+          .map((log) => ({
+            message: `Task: ${log.task} - ${log.action} (${log.by})`,
+            timestamp: String(log.when || "").slice(0, 16),
+            isRead: false
+          }));
+        const expenseActivity = state.expenseLogs
+          .filter((log) => {
+            const by = String(log.by || "").trim().toLowerCase();
+            return by === me || isSubCoordinatorActor(log.by);
+          })
+          .map((log) => ({
+            message: `Expense: ${log.category} - ${log.action} (${log.by})`,
+            timestamp: String(log.when || "").slice(0, 16),
+            isRead: false
+          }));
+        return [...taskActivity, ...expenseActivity].sort((a, b) => String(b.timestamp).localeCompare(String(a.timestamp)));
+      }
+
+      function renderDashboard() {
+        const totalFunds = sumFunds();
+        const totalExpense = approvedExpenses();
+        const remaining = totalFunds - totalExpense;
+        const roleExpenseEntries = visibleExpenseEntriesForRole().map((entry) => entry.expense);
+        const roleReleasedExpenseTotal = roleExpenseEntries
+          .filter((e) => e.status === "released" || e.status === "approved")
+          .reduce((sum, e) => sum + e.amount, 0);
+        const shownExpenseTotal = state.role === "sub" || state.role === "coordinator" ? roleReleasedExpenseTotal : totalExpense;
+        const visibleTasks = visibleTasksForRole();
+        const pendingTasks = visibleTasks.filter((t) => t.status !== "completed").length;
+        const completedTasks = visibleTasks.filter((t) => t.status === "completed").length;
+        const prepProgress = visibleTasks.length
+          ? Math.round(visibleTasks.reduce((acc, t) => acc + t.progress, 0) / visibleTasks.length)
+          : 0;
+
+        qs("#dashboard-metrics").innerHTML = `
+          <article class="card metric"><h3>Total Funds</h3><p class="value">${canViewFundAmount() ? fmt.format(totalFunds) : "Restricted"}</p><small>${canViewFundAmount() ? "Collected donations" : "Visible only to Chairman and Treasurer"}</small></article>
+          <article class="card metric"><h3>Total Expenses</h3><p class="value">${fmt.format(shownExpenseTotal)}</p><small>${state.role === "sub" ? "Your approved/released expenses" : state.role === "coordinator" ? "Main + Sub approved/released expenses" : "Approved expenses"}</small></article>
+          <article class="card metric"><h3>Remaining Balance</h3><p class="value">${canViewFundAmount() ? fmt.format(remaining) : "Restricted"}</p><small>${canViewFundAmount() ? "Available funds" : "Visible only to Chairman and Treasurer"}</small></article>
+          <article class="card metric"><h3>Preparation Progress</h3><p class="value">${prepProgress}%</p><small>${completedTasks} done, ${pendingTasks} pending</small></article>
+        `;
+
+        qs("#task-progress-list").innerHTML = visibleTasks.length
+          ? visibleTasks
+              .map(
+                (task) => `
+              <div class="kpi">
+                <span>${task.title}</span>
+                <strong>${task.progress}%</strong>
+              </div>
+              <div class="progress"><span style="width: ${task.progress}%"></span></div>
+              <div class="subtext" style="margin: 6px 0 10px">${task.assignedTo} • ${task.status.replace("_", " ")} • due ${task.deadline}</div>
+            `
+              )
+              .join("")
+          : `<div class="empty">No tasks visible for this role.</div>`;
+
+        const liveFeed = liveActivityFeedForRole();
+        qs("#live-activity").innerHTML = liveFeed.length
+          ? liveFeed
+              .map((n) => `<div class="notice ${n.isRead ? "" : "unread"}"><span>${n.message}</span><small>${n.timestamp}</small></div>`)
+              .join("")
+          : `<div class="empty">No live activity yet.</div>`;
+      }
+
+      function renderFinance() {
+        const donationForm = qs("#donation-form");
+        const donationSubmitBtn = donationForm ? donationForm.querySelector('button[type="submit"]') : null;
+        const donationCancelBtn = qs("#donation-cancel-btn");
+        const isEditingDonation = state.editingDonationIndex >= 0;
+        if (donationSubmitBtn) donationSubmitBtn.textContent = isEditingDonation ? "Update Donation" : "Save Donation";
+        if (donationCancelBtn) donationCancelBtn.style.display = isEditingDonation ? "inline-flex" : "none";
+
+        qs("#donation-table").innerHTML = state.funds.length
+          ? state.funds
+              .slice()
+              .reverse()
+              .map(
+                (f, reversedIndex) => {
+                  const index = state.funds.length - 1 - reversedIndex;
+                  return `<tr>
+                    <td>${f.date}</td>
+                    <td>${f.donor}</td>
+                    <td>${f.source}</td>
+                    <td>${fmt.format(f.amount)}</td>
+                    <td>${f.addedBy}</td>
+                    <td>
+                      ${
+                        state.role === "treasurer"
+                          ? `<button class="btn" data-edit-donation="${index}">Edit</button>`
+                          : "<span class='subtext'>View</span>"
+                      }
+                    </td>
+                  </tr>`;
+                }
+              )
+              .join("")
+          : `<tr><td colspan="6"><div class="empty">No donations yet.</div></td></tr>`;
+
+        document.querySelectorAll("[data-edit-donation]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            if (state.role !== "treasurer") return;
+            const index = Number(btn.dataset.editDonation);
+            const donation = state.funds[index];
+            if (!donation || !donationForm) return;
+            donationForm.elements.donor.value = donation.donor || "";
+            donationForm.elements.source.value = donation.source || "";
+            donationForm.elements.amount.value = donation.amount || "";
+            donationForm.elements.date.value = donation.date || "";
+            donationForm.elements.note.value = donation.note || "";
+            state.editingDonationIndex = index;
+            refresh();
+          });
+        });
+
+        const totalFunds = sumFunds();
+        const totalExpense = approvedExpenses();
+        const remaining = totalFunds - totalExpense;
+
+        qs("#fund-summary").innerHTML = canViewFundAmount()
+          ? `
+              <p><strong>Total funds:</strong> ${fmt.format(totalFunds)}</p>
+              <p><strong>Total expenses:</strong> ${fmt.format(totalExpense)}</p>
+              <p><strong>Remaining balance:</strong> ${fmt.format(remaining)}</p>
+            `
+          : `<div class="empty">Fund amount details are visible only to Chairman and Treasurer.</div>`;
+      }
+
+      function renderExpenses() {
+        const canRequestExpense = state.role === "coordinator" || state.role === "sub" || state.role === "chairman";
+        const requestFormCard = qs("#expense-request-form-card");
+        const directSpendCard = qs("#treasurer-direct-spend-card");
+        if (directSpendCard) directSpendCard.style.display = state.role === "treasurer" ? "block" : "none";
+        if (requestFormCard) requestFormCard.style.display = canRequestExpense ? "block" : "none";
+        const visibleExpenseEntries = visibleExpenseEntriesForRole();
+        if (state.role === "coordinator") {
+          const coordinatorScopeTotal = visibleExpenseEntries
+            .map((entry) => entry.expense)
+            .filter((e) => e.status === "released" || e.status === "approved")
+            .reduce((sum, e) => sum + e.amount, 0);
+          qs("#expense-live-summary").innerHTML = `<strong>Main + Sub expenses:</strong> ${fmt.format(coordinatorScopeTotal)}`;
+        } else if (state.role === "sub") {
+          const subScopeTotal = visibleExpenseEntries
+            .map((entry) => entry.expense)
+            .filter((e) => e.status === "released" || e.status === "approved")
+            .reduce((sum, e) => sum + e.amount, 0);
+          qs("#expense-live-summary").innerHTML = `<strong>Your expenses:</strong> ${fmt.format(subScopeTotal)}`;
+        } else {
+          const totalFunds = sumFunds();
+          const totalExpenses = approvedExpenses();
+          qs("#expense-live-summary").innerHTML = `<strong>Total expense:</strong> ${fmt.format(totalExpenses)} &nbsp;|&nbsp; <strong>Remaining balance:</strong> ${fmt.format(totalFunds - totalExpenses)}`;
+        }
+
+        qs("#expense-table").innerHTML = visibleExpenseEntries.length
+          ? visibleExpenseEntries
+              .map(
+                ({ expense: e, index: i }) => `
+              <tr>
+                <td>${e.category}</td>
+                <td>${e.description}</td>
+                <td>${e.requestedBy}</td>
+                <td>${e.requestedAt || "-"}</td>
+                <td>${fmt.format(e.amount)}</td>
+                <td><span class="chip ${expenseStatusMeta(e).chip}">${expenseStatusMeta(e).label}</span></td>
+                <td>
+                  <div class="subtext">Deadline: ${e.deadline || "-"}</div>
+                  <div class="subtext">Main: ${e.mainApprovedBy ? `Approved by ${e.mainApprovedBy}` : "Pending"}</div>
+                  <div class="subtext">Chairman: ${e.chairmanApprovedBy ? `Approved by ${e.chairmanApprovedBy}` : "Pending"}</div>
+                  ${
+                    e.status === "rejected"
+                      ? `<div class="subtext">Rejected by: ${e.rejectedBy || "-"}</div>`
+                      : e.status === "released"
+                        ? `<div class="subtext">Released by: ${e.releasedBy || "-"}</div>
+                           ${e.releaseMode === "override" ? `<div class="subtext">Release mode: Override (no full approvals)</div>` : ""}`
+                        : ""
+                  }
+                </td>
+                <td>
+                  <div class="subtext">Req by: ${e.requestedByRole || "-"}</div>
+                  ${
+                    state.role === "coordinator" && e.status === "pending_main"
+                      ? `<button class="btn" data-expense-action="main_approve" data-index="${i}">Main Approve</button>
+                         <button class="btn secondary" data-expense-action="reject" data-index="${i}">Reject</button>`
+                      : ""
+                  }
+                  ${
+                    state.role === "chairman" && e.status === "pending_chairman"
+                      ? `<button class="btn" data-expense-action="chairman_approve" data-index="${i}">Chairman Approve</button>
+                         <button class="btn secondary" data-expense-action="reject" data-index="${i}">Reject</button>`
+                      : ""
+                  }
+                  ${
+                    state.role === "treasurer" && e.status !== "released" && e.status !== "rejected"
+                      ? `<button class="btn" data-expense-action="release" data-index="${i}">Accept & Release</button>
+                         <button class="btn secondary" data-expense-action="reject" data-index="${i}">Reject</button>`
+                      : ""
+                  }
+                  ${
+                    state.role === "treasurer" &&
+                    e.status !== "released" &&
+                    e.status !== "rejected" &&
+                    !(e.mainApprovedBy && e.chairmanApprovedBy)
+                      ? "<div class='subtext'>Override: releasing without full approvals</div>"
+                      : ""
+                  }
+                  ${
+                    !(
+                      (state.role === "coordinator" && e.status === "pending_main") ||
+                      (state.role === "chairman" && e.status === "pending_chairman") ||
+                      (state.role === "treasurer" && e.status !== "released" && e.status !== "rejected")
+                    )
+                      ? state.role === "treasurer"
+                        ? "<span class='subtext'>Visible to Treasurer. Waiting for approvals.</span>"
+                        : "<span class='subtext'>View only</span>"
+                      : ""
+                  }
+                </td>
+              </tr>
+            `
+              )
+              .join("")
+          : `<tr><td colspan="8"><div class="empty">No expense requests yet.</div></td></tr>`;
+
+        const logsForRole = visibleExpenseLogsForRole();
+        qs("#expense-log-table").innerHTML = logsForRole.length
+          ? logsForRole
+              .slice()
+              .reverse()
+              .map((l) => `<tr><td>${l.when}</td><td>${l.category}</td><td>${l.action}</td><td>${l.by}</td></tr>`)
+              .join("")
+          : `<tr><td colspan="4"><div class="empty">No expense logs yet.</div></td></tr>`;
+
+        const bills = visibleBillsForRole();
+        qs("#bill-table").innerHTML = bills.length
+          ? bills
+              .slice()
+              .reverse()
+              .map(
+                (b) => `
+                  <tr>
+                    <td>${b.billNo || "-"}</td>
+                    <td>${b.createdAt}</td>
+                    <td>${b.title}</td>
+                    <td>${b.category}</td>
+                    <td>${fmt.format(b.amount)}</td>
+                    <td>${b.uploadedBy}</td>
+                    <td>${b.uploadedByRole}</td>
+                    <td>
+                      <div class="subtext" title="${String(b.proofNote || "").replace(/"/g, "&quot;")}">${b.proofNote || "-"}</div>
+                    </td>
+                    <td>
+                      ${
+                        b.photoDataUrl
+                          ? canViewBillPhoto()
+                            ? `<a class="btn" href="${b.photoDataUrl}" target="_blank" rel="noopener">View Photo</a>`
+                            : "<span class='subtext'>Photo restricted</span>"
+                          : "<span class='subtext'>No photo</span>"
+                      }
+                    </td>
+                  </tr>
+                `
+              )
+              .join("")
+          : `<tr><td colspan="9"><div class="empty">No bills visible for this role.</div></td></tr>`;
+
+        document.querySelectorAll("[data-expense-action]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const idx = Number(btn.dataset.index);
+            const action = btn.dataset.expenseAction;
+            const expense = state.expenses[idx];
+            if (!expense) return;
+
+            if (action === "main_approve") {
+              expense.status = "pending_chairman";
+              expense.mainApprovedBy = actorName();
+              expense.mainApprovedAt = nowStamp();
+            } else if (action === "chairman_approve") {
+              expense.status = "pending_treasurer";
+              expense.chairmanApprovedBy = actorName();
+              expense.chairmanApprovedAt = nowStamp();
+            } else if (action === "release") {
+              const hasAllApprovals = !!(expense.mainApprovedBy && expense.chairmanApprovedBy);
+              expense.status = "released";
+              expense.releasedBy = actorName();
+              expense.releasedAt = nowStamp();
+              expense.releaseMode = hasAllApprovals ? "normal" : "override";
+              if (!hasAllApprovals) {
+                expense.overrideNote = "Released by Treasurer without full approvals";
+              }
+            } else if (action === "reject") {
+              expense.status = "rejected";
+              expense.rejectedBy = actorName();
+              expense.rejectedAt = nowStamp();
+            }
+
+            state.expenseLogs.push({
+              when: nowStamp(),
+              category: expense.category,
+              action:
+                action === "release" && expense.releaseMode === "override"
+                  ? "accept & release (override without full approvals)"
+                  : `${action.replace("_", " ")}`,
+              by: actorName()
+            });
+            state.notifications.push({
+              id: Date.now(),
+              message:
+                action === "release" && expense.releaseMode === "override"
+                  ? `Chairman Alert: Treasurer released ${expense.category} without full approvals`
+                  : `Expense ${expense.category} is now ${expenseStatusMeta(expense).label}`,
+              userId: action === "release" && expense.releaseMode === "override" ? "chairman" : "coordinator",
+              isRead: false,
+              timestamp: nowStamp().slice(0, 16)
+            });
+            refresh();
+          });
+        });
+      }
+
+      function renderTasks() {
+        const canTaskEdit = state.role === "coordinator" || state.role === "sub";
+        const canReviewRequests = state.role === "coordinator";
+        const canCreateTask = state.role === "chairman" || state.role === "coordinator" || state.role === "sub";
+        const visibleTaskEntries = visibleTaskEntriesForRole();
+        const visibleTasks = visibleTaskEntries.map((x) => x.task);
+        const subRequestCard = qs("#sub-task-request-card");
+        const requestListCard = qs("#task-request-list-card");
+        if (subRequestCard) subRequestCard.style.display = state.role === "sub" ? "block" : "none";
+        if (requestListCard) requestListCard.style.display = state.role === "coordinator" ? "block" : "none";
+
+        const taskForm = qs("#task-form");
+        if (taskForm) {
+          const assignedInput = taskForm.querySelector('input[name="assigned"]');
+          taskForm.querySelectorAll("input, select, textarea, button").forEach((el) => {
+            el.disabled = !canCreateTask;
+          });
+          if (assignedInput) {
+            if (state.role === "chairman") {
+              assignedInput.value = "Main Coordinator";
+              assignedInput.readOnly = true;
+            } else {
+              assignedInput.readOnly = false;
+            }
+          }
+        }
+
+        const taskRequestForm = qs("#task-request-form");
+        if (taskRequestForm) {
+          const disabled = state.role !== "sub";
+          taskRequestForm.querySelectorAll("input, select, textarea, button").forEach((el) => {
+            el.disabled = disabled;
+          });
+          const requestedByInput = taskRequestForm.querySelector('input[name="requestedBy"]');
+          if (requestedByInput) {
+            requestedByInput.value = state.role === "sub" ? actorName() : "";
+            requestedByInput.readOnly = state.role === "sub";
+          }
+        }
+
+        qs("#task-table").innerHTML = visibleTaskEntries.length
+          ? visibleTaskEntries
+              .map(
+                ({ task: t, index: sourceIndex }) => `
+              <tr>
+                <td>${t.title}</td>
+                <td>${t.assignedTo}</td>
+                <td>${t.deadline}</td>
+                <td><span class="chip ${t.status}">${t.status}</span></td>
+                <td>${t.progress}%</td>
+                <td>${t.createdBy || "-"}</td>
+                <td>${t.createdAt || "-"}</td>
+                <td>
+                  ${
+                    canTaskEdit
+                      ? `<input type="number" min="0" max="100" value="${t.progress}" data-progress-input="${sourceIndex}" style="width:72px" />
+                         <button class="btn" data-progress-save="${sourceIndex}">Save</button>`
+                      : "<span class='subtext'>View only</span>"
+                  }
+                </td>
+              </tr>
+            `
+              )
+              .join("")
+          : `<tr><td colspan="8"><div class="empty">No tasks created yet.</div></td></tr>`;
+
+        const completed = visibleTasks.filter((t) => t.status === "completed").length;
+        const inProgress = visibleTasks.filter((t) => t.status === "in_progress").length;
+        const pending = visibleTasks.filter((t) => t.status === "pending").length;
+
+        qs("#task-stats").innerHTML = `
+          <p><strong>Completed:</strong> ${completed}</p>
+          <p><strong>In Progress:</strong> ${inProgress}</p>
+          <p><strong>Pending:</strong> ${pending}</p>
+        `;
+
+        qs("#task-request-table").innerHTML = state.taskRequests.length
+          ? state.taskRequests
+              .slice()
+              .reverse()
+              .map(
+                (r, idx) => `
+                  <tr>
+                    <td>${r.title}</td>
+                    <td>${r.requestedBy}</td>
+                    <td>${r.deadline}</td>
+                    <td>${r.priority}</td>
+                    <td><span class="chip ${r.status}">${r.status}</span></td>
+                    <td>
+                      ${
+                        canReviewRequests && r.status === "pending"
+                          ? `<button class="btn" data-request-assign="${state.taskRequests.length - 1 - idx}">Assign as Task</button>`
+                          : "<span class='subtext'>-</span>"
+                      }
+                    </td>
+                  </tr>
+                `
+              )
+              .join("")
+          : `<tr><td colspan="6"><div class="empty">No task requests yet.</div></td></tr>`;
+
+        qs("#task-log-table").innerHTML = state.taskLogs.length
+          ? state.taskLogs
+              .slice()
+              .reverse()
+              .map((log) => `<tr><td>${log.when}</td><td>${log.task}</td><td>${log.action}</td><td>${log.by}</td></tr>`)
+              .join("")
+          : `<tr><td colspan="4"><div class="empty">No task logs yet.</div></td></tr>`;
+
+        document.querySelectorAll("[data-progress-save]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const idx = Number(btn.dataset.progressSave);
+            const input = qs(`[data-progress-input="${idx}"]`);
+            if (!input) return;
+            const nextProgress = Math.min(100, Math.max(0, Number(input.value) || 0));
+            state.tasks[idx].progress = nextProgress;
+            state.tasks[idx].status = nextProgress >= 100 ? "completed" : nextProgress > 0 ? "in_progress" : "pending";
+            state.taskLogs.push({
+              when: nowStamp(),
+              task: state.tasks[idx].title,
+              action: `Progress updated to ${nextProgress}%`,
+              by: actorName()
+            });
+            state.notifications.push({
+              id: Date.now(),
+              message: `Task progress updated: ${state.tasks[idx].title} (${nextProgress}%)`,
+              userId: "coordinator",
+              isRead: false,
+              timestamp: nowStamp().slice(0, 16)
+            });
+            refresh();
+          });
+        });
+
+        document.querySelectorAll("[data-request-assign]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const idx = Number(btn.dataset.requestAssign);
+            const req = state.taskRequests[idx];
+            if (!req || req.status !== "pending") return;
+            req.status = "approved";
+            state.tasks.push({
+              title: req.title,
+              assignedTo: req.requestedBy,
+              deadline: req.deadline,
+              status: "pending",
+              progress: 0,
+              createdBy: actorName(),
+              createdAt: nowStamp()
+            });
+            state.taskLogs.push({
+              when: nowStamp(),
+              task: req.title,
+              action: "Task request approved and assigned",
+              by: actorName()
+            });
+            state.notifications.push({
+              id: Date.now(),
+              message: `Task request approved: ${req.title}`,
+              userId: "sub",
+              isRead: false,
+              timestamp: nowStamp().slice(0, 16)
+            });
+            refresh();
+          });
+        });
+      }
+
+      function renderReports() {
+        const totalFunds = sumFunds();
+        const totalExpense = approvedExpenses();
+        const remain = totalFunds - totalExpense;
+
+        qs("#financial-report").innerHTML = canViewFundAmount()
+          ? `
+              <p>Total donations: <strong>${fmt.format(totalFunds)}</strong></p>
+              <p>Total expenses: <strong>${fmt.format(totalExpense)}</strong></p>
+              <p>Remaining balance: <strong>${fmt.format(remain)}</strong></p>
+            `
+          : `<div class="empty">Financial amounts are restricted for this role.</div>`;
+
+        const scopedTasks = visibleTasksForRole();
+        const completed = scopedTasks.filter((t) => t.status === "completed").length;
+        const pending = scopedTasks.length - completed;
+
+        qs("#task-report").innerHTML = `
+          <p>Completed tasks: <strong>${completed}</strong></p>
+          <p>Pending tasks: <strong>${pending}</strong></p>
+        `;
+
+        const expenseSource =
+          state.role === "coordinator" || state.role === "sub"
+            ? visibleExpenseEntriesForRole().map((entry) => entry.expense)
+            : state.expenses;
+        const categories = expenseSource
+          .filter((e) => e.status === "released" || e.status === "approved")
+          .reduce((acc, e) => {
+            acc[e.category] = (acc[e.category] || 0) + e.amount;
+            return acc;
+          }, {});
+
+        const categoryItems = Object.entries(categories);
+        qs("#expense-category-report").innerHTML = categoryItems.length
+          ? categoryItems.map(([name, amount]) => `<p>${name}: <strong>${fmt.format(amount)}</strong></p>`).join("")
+          : `<div class="empty">No expense category data yet.</div>`;
+      }
+
+      function renderNotifications() {
+        const requestCard = qs("#coordinator-chairman-request-card");
+        const announcementCard = qs("#chairman-announcement-card");
+        const inboxCard = qs("#chairman-request-inbox-card");
+        if (requestCard) requestCard.style.display = state.role === "coordinator" ? "block" : "none";
+        if (announcementCard) announcementCard.style.display = state.role === "chairman" ? "block" : "none";
+        if (inboxCard) inboxCard.style.display = state.role === "chairman" ? "block" : "none";
+
+        const scopedNotifications = visibleNotificationsForRole();
+        qs("#notifications-list").innerHTML = scopedNotifications.length
+          ? scopedNotifications
+              .slice()
+              .reverse()
+              .map(
+                (n) => `
+                <div class="notice ${n.isRead ? "" : "unread"}">
+                  <div>
+                    <div>${n.message}</div>
+                    <small class="subtext">${n.timestamp}</small>
+                  </div>
+                  <button class="btn" data-read="${n.id}">${n.isRead ? "Read" : "Mark Read"}</button>
+                </div>
+              `
+              )
+              .join("")
+          : `<div class="empty">No notifications yet.</div>`;
+
+        document.querySelectorAll("[data-read]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const item = state.notifications.find((n) => String(n.id) === btn.dataset.read);
+            if (item) item.isRead = true;
+            refresh();
+          });
+        });
+
+        const visibleAnnouncements = state.announcements.filter((a) => {
+          if (state.role === "sub") {
+            return a.visibility === "sub_mention" && isAnnouncementMentionedToCurrentSub(a);
+          }
+          if (a.visibility === "all") return true;
+          if (a.visibility === "main_coordinator") return state.role === "coordinator" || state.role === "chairman";
+          if (a.visibility === "sub_mention") return state.role === "chairman";
+          return false;
+        });
+        qs("#announcement-feed").innerHTML = visibleAnnouncements.length
+          ? visibleAnnouncements
+              .slice()
+              .reverse()
+              .map(
+                (a) => `
+                <div class="notice ${a.visibility === "main_coordinator" ? "unread" : ""}">
+                  <div>
+                    <div><strong>${a.title}</strong></div>
+                    <div>${a.message}</div>
+                    <small class="subtext">
+                      ${a.createdAt} •
+                      ${
+                        a.visibility === "all"
+                          ? "All users"
+                          : a.visibility === "main_coordinator"
+                            ? "Main Coordinator only"
+                            : `Mentioned Sub only (${a.mentionTo || "-"})`
+                      }
+                    </small>
+                  </div>
+                  <small>${a.createdBy}</small>
+                </div>
+              `
+              )
+              .join("")
+          : `<div class="empty">No announcements available for this role.</div>`;
+
+        qs("#chairman-request-inbox").innerHTML = state.chairmanRequests.length
+          ? state.chairmanRequests
+              .slice()
+              .reverse()
+              .map(
+                (r, idx) => `
+                <tr>
+                  <td>${r.createdAt}</td>
+                  <td>${r.subject}</td>
+                  <td>${r.priority}</td>
+                  <td>${r.message}</td>
+                  <td><span class="chip ${r.status === "open" ? "pending" : "approved"}">${r.status}</span></td>
+                  <td>
+                    ${
+                      state.role === "chairman" && r.status === "open"
+                        ? `<button class="btn" data-request-close="${state.chairmanRequests.length - 1 - idx}">Mark Resolved</button>`
+                        : "<span class='subtext'>-</span>"
+                    }
+                  </td>
+                </tr>
+              `
+              )
+              .join("")
+          : `<tr><td colspan="6"><div class="empty">No coordinator requests yet.</div></td></tr>`;
+
+        document.querySelectorAll("[data-request-close]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const idx = Number(btn.dataset.requestClose);
+            if (!state.chairmanRequests[idx]) return;
+            state.chairmanRequests[idx].status = "resolved";
+            state.notifications.push({
+              id: Date.now(),
+              message: `Chairman resolved request: ${state.chairmanRequests[idx].subject}`,
+              userId: "coordinator",
+              isRead: false,
+              timestamp: nowStamp().slice(0, 16)
+            });
+            refresh();
+          });
+        });
+      }
+
+      function renderUsers() {
+        qs("#roles-table").innerHTML = Object.values(roles)
+          .map((role) => `<tr><td>${role.name}</td><td>${role.permissions.join(", ")}</td></tr>`)
+          .join("");
+
+        qs("#sub-coordinator-table").innerHTML = state.subCoordinators.length
+          ? state.subCoordinators
+              .slice()
+              .reverse()
+              .map(
+                (u, idx) => `
+                  <tr>
+                    <td>${u.name}</td>
+                    <td>${u.username || "-"}</td>
+                    <td>${u.contact}</td>
+                    <td>${u.addedBy}</td>
+                    <td>${u.addedAt}</td>
+                    <td>
+                      ${
+                        state.role === "coordinator"
+                          ? `<button class="btn secondary" data-remove-sub="${state.subCoordinators.length - 1 - idx}">Remove</button>`
+                          : "<span class='subtext'>View only</span>"
+                      }
+                    </td>
+                  </tr>
+                `
+              )
+              .join("")
+          : `<tr><td colspan="6"><div class="empty">No Sub Coordinators added yet.</div></td></tr>`;
+
+        const form = qs("#sub-coordinator-form");
+        if (form) {
+          const disabled = state.role !== "coordinator";
+          form.querySelectorAll("input, button").forEach((el) => {
+            el.disabled = disabled;
+          });
+        }
+
+        document.querySelectorAll("[data-remove-sub]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            if (state.role !== "coordinator") return;
+            const idx = Number(btn.dataset.removeSub);
+            const sub = state.subCoordinators[idx];
+            if (!sub) return;
+            const userIndex = appUsers.findIndex((u) => (sub.id ? u.id === sub.id : u.name === sub.name));
+            if (userIndex !== -1) {
+              const removed = appUsers[userIndex];
+              appUsers.splice(userIndex, 1);
+              removeUserAuth(removed.id);
+              saveCustomUsers();
+            }
+            state.subCoordinators.splice(idx, 1);
+            state.notifications.push({
+              id: Date.now(),
+              message: `Sub Coordinator removed: ${sub.name}`,
+              userId: "coordinator",
+              isRead: false,
+              timestamp: nowStamp().slice(0, 16)
+            });
+            refresh();
+          });
+        });
+      }
+
+      function bindForms() {
+        qs("#donation-form").addEventListener("submit", (e) => {
+          e.preventDefault();
+          const form = new FormData(e.target);
+          const dateValue = String(form.get("date") || "").trim() || todayISO();
+          const donationPayload = {
+            date: dateValue,
+            donor: form.get("donor"),
+            source: form.get("source"),
+            amount: Number(form.get("amount")),
+            note: String(form.get("note") || "")
+          };
+
+          if (state.editingDonationIndex >= 0 && state.funds[state.editingDonationIndex]) {
+            const existing = state.funds[state.editingDonationIndex];
+            state.funds[state.editingDonationIndex] = {
+              ...existing,
+              ...donationPayload,
+              editedBy: actorName(),
+              editedAt: nowStamp()
+            };
+            state.notifications.push({
+              id: Date.now(),
+              message: `Donation record updated by ${actorName()}: ${donationPayload.donor} (${fmt.format(donationPayload.amount)})`,
+              userId: "all",
+              isRead: false,
+              timestamp: nowStamp().slice(0, 16)
+            });
+            state.editingDonationIndex = -1;
+          } else {
+            state.funds.push({
+              ...donationPayload,
+              addedBy: actorName()
+            });
+          }
+          e.target.reset();
+          const donationDateInput = qs('#donation-form input[name="date"]');
+          if (donationDateInput) donationDateInput.value = todayISO();
+          refresh();
+        });
+
+        const donationCancelBtn = qs("#donation-cancel-btn");
+        if (donationCancelBtn) {
+          donationCancelBtn.addEventListener("click", () => {
+            state.editingDonationIndex = -1;
+            qs("#donation-form").reset();
+            const donationDateInput = qs('#donation-form input[name="date"]');
+            if (donationDateInput) donationDateInput.value = todayISO();
+            refresh();
+          });
+        }
+
+        qs("#expense-request-form").addEventListener("submit", (e) => {
+          e.preventDefault();
+          if (!(state.role === "coordinator" || state.role === "sub" || state.role === "chairman")) return;
+          const form = new FormData(e.target);
+          const by = actorName();
+          const isMain = state.role === "coordinator";
+          const isChairman = state.role === "chairman";
+          const expense = {
+            category: form.get("category"),
+            description: form.get("description"),
+            requestedBy: by,
+            requestedByRole: roles[state.role].name,
+            amount: Number(form.get("amount")),
+            deadline: form.get("deadline") || "",
+            requestedAt: nowStamp(),
+            status: isChairman ? "pending_treasurer" : isMain ? "pending_chairman" : "pending_main",
+            mainApprovedBy: isMain || isChairman ? by : "",
+            mainApprovedAt: isMain || isChairman ? nowStamp() : "",
+            chairmanApprovedBy: isChairman ? by : "",
+            chairmanApprovedAt: isChairman ? nowStamp() : ""
+          };
+          state.expenses.push(expense);
+          state.expenseLogs.push({
+            when: nowStamp(),
+            category: expense.category,
+            action: "request submitted",
+            by
+          });
+          state.notifications.push({
+            id: Date.now(),
+            message: `Treasurer Alert: Expense request submitted by ${by} (${expense.category})`,
+            userId: isChairman ? "treasurer" : isMain ? "chairman" : "coordinator",
+            isRead: false,
+            timestamp: nowStamp().slice(0, 16)
+          });
+          e.target.reset();
+          const expenseDeadlineInput = qs('#expense-request-form input[name="deadline"]');
+          if (expenseDeadlineInput) expenseDeadlineInput.value = todayISO();
+          refresh();
+        });
+
+        qs("#treasurer-spend-form").addEventListener("submit", (e) => {
+          e.preventDefault();
+          if (state.role !== "treasurer") return;
+          const form = new FormData(e.target);
+          const amount = Number(form.get("amount"));
+          const remaining = sumFunds() - approvedExpenses();
+          if (amount > remaining) {
+            alert("Amount exceeds available balance.");
+            return;
+          }
+          const expense = {
+            category: form.get("category"),
+            description: `${form.get("spentFor")} - ${form.get("description")}`,
+            requestedBy: actorName(),
+            requestedByRole: roles[state.role].name,
+            amount,
+            deadline: form.get("deadline") || "",
+            requestedAt: nowStamp(),
+            status: "released",
+            releasedBy: actorName(),
+            releasedAt: nowStamp(),
+            releaseMode: "direct_spend"
+          };
+          state.expenses.push(expense);
+          state.expenseLogs.push({
+            when: nowStamp(),
+            category: expense.category,
+            action: "direct spend recorded by treasurer",
+            by: actorName()
+          });
+          state.notifications.push({
+            id: Date.now(),
+            message: `Treasurer recorded direct spend: ${expense.category} (${fmt.format(expense.amount)})`,
+            userId: "chairman",
+            isRead: false,
+            timestamp: nowStamp().slice(0, 16)
+          });
+          e.target.reset();
+          const spendDeadlineInput = qs('#treasurer-spend-form input[name="deadline"]');
+          if (spendDeadlineInput) spendDeadlineInput.value = todayISO();
+          refresh();
+        });
+
+        const donationDateInput = qs('#donation-form input[name="date"]');
+        if (donationDateInput && !donationDateInput.value) donationDateInput.value = todayISO();
+        const expenseDeadlineInput = qs('#expense-request-form input[name="deadline"]');
+        if (expenseDeadlineInput && !expenseDeadlineInput.value) expenseDeadlineInput.value = todayISO();
+        const spendDeadlineInput = qs('#treasurer-spend-form input[name="deadline"]');
+        if (spendDeadlineInput && !spendDeadlineInput.value) spendDeadlineInput.value = todayISO();
+        const announcementVisibility = qs("#announcement-visibility");
+        if (announcementVisibility) {
+          announcementVisibility.addEventListener("change", () => {
+            const mentionInput = qs("#announcement-mention");
+            if (!mentionInput) return;
+            const needMention = announcementVisibility.value === "sub_mention";
+            mentionInput.style.display = needMention ? "block" : "none";
+            mentionInput.required = needMention;
+            if (!needMention) mentionInput.value = "";
+          });
+        }
+
+        qs("#bill-form").addEventListener("submit", (e) => {
+          e.preventDefault();
+          const form = e.target;
+          const formData = new FormData(form);
+          const photoFile = formData.get("photo");
+          const bill = {
+            billNo: `BILL-${Date.now().toString().slice(-6)}`,
+            title: formData.get("title"),
+            category: formData.get("category"),
+            amount: Number(formData.get("amount")),
+            proofNote: formData.get("proofNote"),
+            uploadedBy: actorName(),
+            uploadedByRole: roles[state.role].name,
+            createdAt: nowStamp(),
+            photoDataUrl: ""
+          };
+
+          const finishBillSave = () => {
+            state.bills.push(bill);
+            state.notifications.push({
+              id: Date.now(),
+              message: `Bill uploaded: ${bill.title} by ${bill.uploadedBy}`,
+              userId: "chairman",
+              isRead: false,
+              timestamp: nowStamp().slice(0, 16)
+            });
+            form.reset();
+            refresh();
+          };
+
+          if (photoFile && photoFile.size > 0) {
+            const reader = new FileReader();
+            reader.onload = () => {
+              bill.photoDataUrl = String(reader.result || "");
+              finishBillSave();
+            };
+            reader.readAsDataURL(photoFile);
+            return;
+          }
+
+          finishBillSave();
+        });
+
+        qs("#task-form").addEventListener("submit", (e) => {
+          e.preventDefault();
+          if (!(state.role === "chairman" || state.role === "coordinator" || state.role === "sub")) return;
+          const form = new FormData(e.target);
+          const assignedTo = state.role === "chairman" ? "Main Coordinator" : form.get("assigned");
+          state.tasks.push({
+            title: form.get("title"),
+            assignedTo,
+            deadline: form.get("deadline"),
+            status: form.get("status"),
+            progress: form.get("status") === "completed" ? 100 : form.get("status") === "in_progress" ? 50 : 5,
+            createdBy: actorName(),
+            createdAt: nowStamp()
+          });
+          state.taskLogs.push({
+            when: nowStamp(),
+            task: form.get("title"),
+            action: "Task created",
+            by: actorName()
+          });
+          state.notifications.push({
+            id: Date.now(),
+            message: `Task assigned: ${form.get("title")}`,
+            userId: "sub",
+            isRead: false,
+            timestamp: nowStamp().slice(0, 16)
+          });
+          e.target.reset();
+          refresh();
+        });
+
+        qs("#task-request-form").addEventListener("submit", (e) => {
+          e.preventDefault();
+          if (state.role !== "sub") return;
+          const form = new FormData(e.target);
+          const request = {
+            title: form.get("title"),
+            requestedBy: form.get("requestedBy"),
+            deadline: form.get("deadline"),
+            priority: form.get("priority"),
+            note: form.get("note"),
+            status: "pending",
+            createdAt: nowStamp()
+          };
+          state.taskRequests.push(request);
+          state.taskLogs.push({
+            when: nowStamp(),
+            task: request.title,
+            action: "Task requested by Sub Coordinator",
+            by: request.requestedBy
+          });
+          state.notifications.push({
+            id: Date.now(),
+            message: `New task request: ${request.title} (${request.requestedBy})`,
+            userId: "coordinator",
+            isRead: false,
+            timestamp: nowStamp().slice(0, 16)
+          });
+          e.target.reset();
+          refresh();
+        });
+
+        qs("#sub-coordinator-form").addEventListener("submit", (e) => {
+          e.preventDefault();
+          if (state.role !== "coordinator") return;
+          const form = new FormData(e.target);
+          const name = String(form.get("name") || "").trim();
+          const contact = String(form.get("contact") || "").trim();
+          const username = String(form.get("username") || "").trim();
+          const password = String(form.get("password") || "");
+
+          if (!username || !password) return;
+          const duplicate = appUsers.find((u) => u.username.toLowerCase() === username.toLowerCase());
+          if (duplicate) {
+            alert("Username already exists. Please use another username.");
+            return;
+          }
+
+          const id = `u-sub-custom-${Date.now()}`;
+          appUsers.push({ id, username, name, role: "sub", password });
+          saveCustomUsers();
+          saveUserAuth(id, { username, password, name });
+
+          state.subCoordinators.push({
+            id,
+            username,
+            name,
+            contact,
+            addedBy: actorName(),
+            addedAt: nowStamp()
+          });
+          state.notifications.push({
+            id: Date.now(),
+            message: `Sub Coordinator account created: ${name} (${username})`,
+            userId: "coordinator",
+            isRead: false,
+            timestamp: nowStamp().slice(0, 16)
+          });
+          e.target.reset();
+          refresh();
+        });
+
+        qs("#chairman-request-form").addEventListener("submit", (e) => {
+          e.preventDefault();
+          if (state.role !== "coordinator") return;
+          const form = new FormData(e.target);
+          const req = {
+            subject: form.get("subject"),
+            priority: form.get("priority"),
+            message: form.get("message"),
+            createdBy: actorName(),
+            createdAt: nowStamp(),
+            status: "open"
+          };
+          state.chairmanRequests.push(req);
+          state.notifications.push({
+            id: Date.now(),
+            message: `New request sent to Chairman: ${req.subject}`,
+            userId: "chairman",
+            isRead: false,
+            timestamp: nowStamp().slice(0, 16)
+          });
+          e.target.reset();
+          refresh();
+        });
+
+        qs("#announcement-form").addEventListener("submit", (e) => {
+          e.preventDefault();
+          if (state.role !== "chairman") return;
+          const form = new FormData(e.target);
+          const visibility = String(form.get("visibility") || "all");
+          const mentionRaw = String(form.get("mentionTo") || "").trim();
+          const mentionMatch = appUsers.find(
+            (u) =>
+              u.role === "sub" &&
+              (u.username.toLowerCase() === mentionRaw.toLowerCase() || String(u.name || "").toLowerCase() === mentionRaw.toLowerCase())
+          );
+          const mentionTo = mentionMatch ? mentionMatch.username : mentionRaw;
+          if (visibility === "sub_mention" && !mentionTo) {
+            alert("Please enter Sub username for mention visibility.");
+            return;
+          }
+          const announcement = {
+            title: form.get("title"),
+            message: form.get("message"),
+            visibility,
+            mentionTo,
+            createdBy: actorName(),
+            createdAt: nowStamp()
+          };
+          state.announcements.push(announcement);
+          state.notifications.push({
+            id: Date.now(),
+            message: `Chairman published announcement: ${announcement.title}`,
+            userId:
+              announcement.visibility === "all"
+                ? "all"
+                : announcement.visibility === "main_coordinator"
+                  ? "coordinator"
+                  : `sub:${mentionTo.toLowerCase()}`,
+            isRead: false,
+            timestamp: nowStamp().slice(0, 16)
+          });
+          e.target.reset();
+          const mentionInput = qs("#announcement-mention");
+          if (mentionInput) {
+            mentionInput.style.display = "none";
+            mentionInput.required = false;
+          }
+          refresh();
+        });
+
+        qs("#password-form").addEventListener("submit", (e) => {
+          e.preventDefault();
+          const me = appUsers.find((u) => u.id === state.currentUserId);
+          if (!me) return;
+          const formData = new FormData(e.target);
+          const currentPassword = String(formData.get("currentPassword") || "");
+          const newPassword = String(formData.get("newPassword") || "");
+          const confirmPassword = String(formData.get("confirmPassword") || "");
+          const newUsername = String(formData.get("newUsername") || "").trim();
+          const newDisplayName = String(formData.get("newDisplayName") || "").trim();
+          const msg = qs("#password-msg");
+
+          if (currentPassword !== me.password) {
+            msg.textContent = "Current password is incorrect.";
+            msg.style.color = "#b64343";
+            return;
+          }
+          if (newPassword.length < 4) {
+            msg.textContent = "New password must be at least 4 characters.";
+            msg.style.color = "#b64343";
+            return;
+          }
+          if (newPassword !== confirmPassword) {
+            msg.textContent = "Confirm password does not match.";
+            msg.style.color = "#b64343";
+            return;
+          }
+
+          if (newUsername) {
+            const duplicate = appUsers.find((u) => u.id !== me.id && u.username.toLowerCase() === newUsername.toLowerCase());
+            if (duplicate) {
+              msg.textContent = "Username already used by another account.";
+              msg.style.color = "#b64343";
+              return;
+            }
+            me.username = newUsername;
+          }
+
+          if (newDisplayName) {
+            const oldName = me.name;
+            me.name = newDisplayName;
+            if (state.role === "sub") state.activeSubCoordinator = newDisplayName;
+            state.subCoordinators = state.subCoordinators.map((s) =>
+              (s.id && me.id && s.id === me.id) || (!s.id && s.name === oldName)
+                ? { ...s, name: newDisplayName, username: me.username || s.username }
+                : s
+            );
+          }
+
+          me.password = newPassword;
+          saveUserAuth(me.id, { username: me.username, password: newPassword, name: me.name });
+          saveCustomUsers();
+          renderCurrentUserChip();
+          msg.textContent = "Credentials updated successfully.";
+          msg.style.color = "#287f50";
+          e.target.reset();
+        });
+
+        const roleSelect = qs("#role-select");
+        if (roleSelect) {
+          roleSelect.addEventListener("change", (e) => {
+            setRoleFromSelect(e.target.value);
+            renderNav();
+            refresh();
+          });
+        }
+
+        qs("#open-guide").addEventListener("click", () => {
+          tourIndex = 0;
+          showTour();
+        });
+      }
+
+      function renderTour() {
+        const step = tourSteps[tourIndex];
+        qs("#tour-title").textContent = step.title;
+        qs("#tour-text").textContent = step.text;
+        qs("#tour-step").textContent = `Step ${tourIndex + 1} of ${tourSteps.length}`;
+        qs("#tour-prev").style.visibility = tourIndex === 0 ? "hidden" : "visible";
+        qs("#tour-next").textContent = tourIndex === tourSteps.length - 1 ? "Finish" : "Next";
+      }
+
+      function showTour() {
+        renderTour();
+        qs("#tour-overlay").classList.add("show");
+      }
+
+      function closeTour(markDone = true) {
+        qs("#tour-overlay").classList.remove("show");
+        if (markDone) localStorage.setItem("pdms_onboarded", "1");
+      }
+
+      function bindTour() {
+        qs("#tour-prev").addEventListener("click", () => {
+          tourIndex = Math.max(0, tourIndex - 1);
+          renderTour();
+        });
+
+        qs("#tour-next").addEventListener("click", () => {
+          if (tourIndex < tourSteps.length - 1) {
+            tourIndex += 1;
+            renderTour();
+            return;
+          }
+          closeTour(true);
+        });
+
+        qs("#tour-skip").addEventListener("click", () => closeTour(true));
+      }
+
+      function bindExportButtons() {
+        document.querySelectorAll("[data-export]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const type = btn.dataset.export;
+            alert(`Export started for ${type} report (${btn.textContent})`);
+          });
+        });
+      }
+
+      function registerServiceWorker() {
+        if (!("serviceWorker" in navigator)) return;
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.register("./sw.js").catch(() => {});
+        });
+      }
+
+      function bindInstallFlow() {
+        let deferredPrompt = null;
+        const installBtn = qs("#install-app");
+        if (!installBtn) return;
+
+        window.addEventListener("beforeinstallprompt", (e) => {
+          e.preventDefault();
+          deferredPrompt = e;
+          installBtn.style.display = "inline-flex";
+        });
+
+        installBtn.addEventListener("click", async () => {
+          if (!deferredPrompt) return;
+          deferredPrompt.prompt();
+          await deferredPrompt.userChoice;
+          deferredPrompt = null;
+          installBtn.style.display = "none";
+        });
+
+        window.addEventListener("appinstalled", () => {
+          installBtn.style.display = "none";
+        });
+      }
+
+      function refresh() {
+        renderRoleSelect();
+        renderCurrentUserChip();
+        renderDashboard();
+        renderFinance();
+        renderExpenses();
+        renderTasks();
+        renderReports();
+        renderNotifications();
+        renderUsers();
+        bindExportButtons();
+        const activeSection = document.querySelector(".section.active")?.dataset.section || roles[state.role].sections[0];
+        renderContextBar(activeSection);
+        queueRemoteSave();
+      }
+
+      bindForms();
+      bindTour();
+      bindInstallFlow();
+      registerServiceWorker();
+      loadCustomUsers();
+      loadSavedAuth();
+      loadLocalState();
+      applyOneTimeDataClear();
+      ensureSupabaseSession();
+      bindAuth();
+      qs("#auth-shell").classList.remove("hidden");
+      qs("#app-root").classList.add("hidden");
+    </script>
+  </body>
+</html>

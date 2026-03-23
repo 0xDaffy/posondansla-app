@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 42 45% 96%;
+  --foreground: 30 16% 9%;
+  --muted: 34 25% 92%;
+  --muted-foreground: 25 8% 39%;
+  --border: 36 36% 84%;
+  --input: 36 36% 84%;
+  --ring: 154 40% 31%;
+  --primary: 154 40% 31%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 24 62% 43%;
+  --secondary-foreground: 0 0% 100%;
+  --radius: 1rem;
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+body {
+  @apply min-h-screen text-foreground;
+  font-family: Manrope, "Avenir Next", "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at 12% 10%, #eed7be 0%, transparent 24%),
+    radial-gradient(circle at 90% 0%, #d3e2d8 0%, transparent 20%),
+    #f5f2ea;
+}
+
+.font-display {
+  font-family: Sora, Manrope, "Avenir Next", sans-serif;
+}
