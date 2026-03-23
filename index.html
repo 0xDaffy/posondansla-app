@@ -1532,6 +1532,13 @@
         try {
           await ensureSupabaseSession();
           await loadRemoteState();
+          // Re-apply device-local credential overrides (if any), then publish once.
+          loadSavedAuth();
+          saveLocalState();
+          try {
+            const hasLocalAuthOverrides = !!localStorage.getItem("pdms_user_auth");
+            if (hasLocalAuthOverrides) await saveRemoteState();
+          } catch (_) {}
         } finally {
           authUsersReady = true;
         }
@@ -2949,6 +2956,9 @@
           saveUserAuth(me.id, { username: me.username, password: newPassword, name: me.name });
           saveCustomUsers();
           renderCurrentUserChip();
+          // Ensure credential changes are synced cross-device immediately.
+          saveLocalState();
+          saveRemoteState();
           msg.textContent = "Credentials updated successfully.";
           msg.style.color = "#287f50";
           e.target.reset();
