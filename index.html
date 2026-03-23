@@ -1120,7 +1120,6 @@
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJobXh6dWRxdmlwY3Vvd2drc3dxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyNTA2MjksImV4cCI6MjA4OTgyNjYyOX0.TcnedFQTIZjOexm474moftPFhwxOQ1bSP6cMI2k3drg";
       const REMOTE_STATE_ID = "global";
       const LOCAL_STATE_KEY = "pdms_state_v1";
-      const DATA_RESET_VERSION = "2026-03-23-clear-entered-data-v1";
       const supabaseClient =
         window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY
           ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
@@ -1128,7 +1127,6 @@
       let isHydratingRemote = false;
       let saveTimer = null;
       let supabaseSessionReady = null;
-      let forceClearDataPending = false;
       let authUsersReady = false;
 
       const roles = {
@@ -1271,31 +1269,6 @@
       function saveLocalState() {
         try {
           localStorage.setItem(LOCAL_STATE_KEY, JSON.stringify(getPersistableState()));
-        } catch (_) {}
-      }
-
-      function clearAppDataInMemory() {
-        state.funds = [];
-        state.expenses = [];
-        state.tasks = [];
-        state.notifications = [];
-        state.subCoordinators = [];
-        state.taskRequests = [];
-        state.taskLogs = [];
-        state.chairmanRequests = [];
-        state.announcements = [];
-        state.expenseLogs = [];
-        state.bills = [];
-      }
-
-      function applyOneTimeDataClear() {
-        try {
-          const applied = localStorage.getItem("pdms_data_reset_version");
-          if (applied === DATA_RESET_VERSION) return;
-          localStorage.removeItem(LOCAL_STATE_KEY);
-          clearAppDataInMemory();
-          localStorage.setItem("pdms_data_reset_version", DATA_RESET_VERSION);
-          forceClearDataPending = true;
         } catch (_) {}
       }
 
@@ -1542,14 +1515,7 @@
         qs("#auth-shell").classList.add("hidden");
         qs("#app-root").classList.remove("hidden");
         isHydratingRemote = true;
-        if (forceClearDataPending) {
-          clearAppDataInMemory();
-          saveLocalState();
-          await saveRemoteState();
-          forceClearDataPending = false;
-        } else {
-          await loadRemoteState();
-        }
+        await loadRemoteState();
         try {
           if (!localStorage.getItem("pdms_sub_cleanup_remote_done")) {
             state.subCoordinators = [];
@@ -3103,7 +3069,6 @@
       loadCustomUsers();
       loadSavedAuth();
       loadLocalState();
-      applyOneTimeDataClear();
       ensureSupabaseSession();
       bootstrapLoginUsers();
       bindAuth();
