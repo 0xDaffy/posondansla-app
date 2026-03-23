@@ -1559,13 +1559,8 @@
         try {
           await ensureSupabaseSession();
           await loadRemoteState();
-          // Re-apply device-local credential overrides (if any), then publish once.
-          loadSavedAuth();
+          // Cloud state is the source of truth for cross-device credentials.
           saveLocalState();
-          try {
-            const hasLocalAuthOverrides = !!localStorage.getItem("pdms_user_auth");
-            if (hasLocalAuthOverrides) await saveRemoteState();
-          } catch (_) {}
         } finally {
           authUsersReady = true;
         }
@@ -3130,7 +3125,6 @@
       bindInstallFlow();
       registerServiceWorker();
       loadCustomUsers();
-      loadSavedAuth();
       loadLocalState();
       ensureSupabaseSession();
       bootstrapLoginUsers();
