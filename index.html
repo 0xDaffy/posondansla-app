@@ -1094,6 +1094,12 @@
                 <li>Validate amount and date inputs</li>
                 <li>Restrict bill upload to JPG/PNG/PDF</li>
               </ul>
+              <hr style="border: 0; border-top: 1px solid #d9ceb9; margin: 16px 0" />
+              <button type="button" class="btn secondary full" id="reset-defaults-btn">Reset All Data To Default</button>
+              <p class="subtext" style="margin-top: 8px">
+                Clears all entered app records and restores default logins:
+                <code>chairman/1234</code>, <code>treasurer/1234</code>, <code>maincoordinator/1234</code>.
+              </p>
             </div>
           </div>
         </section>
@@ -1439,6 +1445,27 @@
           delete map[userId];
           localStorage.setItem("pdms_user_auth", JSON.stringify(map));
         } catch (_) {}
+      }
+
+      function resetAppDataToDefaults() {
+        appUsers.length = 0;
+        defaultUsers.forEach((u) => appUsers.push({ ...u }));
+        state.role = "treasurer";
+        state.activeSubCoordinator = "";
+        state.currentUserId = "";
+        state.sessionDisplayName = "";
+        state.editingDonationIndex = -1;
+        state.funds = [];
+        state.expenses = [];
+        state.tasks = [];
+        state.notifications = [];
+        state.subCoordinators = [];
+        state.taskRequests = [];
+        state.taskLogs = [];
+        state.chairmanRequests = [];
+        state.announcements = [];
+        state.expenseLogs = [];
+        state.bills = [];
       }
 
       function actorName() {
@@ -2963,6 +2990,32 @@
           msg.style.color = "#287f50";
           e.target.reset();
         });
+
+        const resetBtn = qs("#reset-defaults-btn");
+        if (resetBtn) {
+          resetBtn.addEventListener("click", async () => {
+            const ok = window.confirm(
+              "This will clear all entered data and restore default login credentials. Continue?"
+            );
+            if (!ok) return;
+            resetAppDataToDefaults();
+            try {
+              localStorage.removeItem("pdms_user_auth");
+              localStorage.removeItem("pdms_custom_users");
+              localStorage.removeItem("pdms_onboarded");
+              localStorage.removeItem(LOCAL_STATE_KEY);
+            } catch (_) {}
+            saveLocalState();
+            await saveRemoteState();
+            const authForm = qs("#login-form");
+            if (authForm) authForm.reset();
+            const loginError = qs("#login-error");
+            if (loginError) loginError.textContent = "";
+            qs("#app-root").classList.add("hidden");
+            qs("#auth-shell").classList.remove("hidden");
+            alert("All entered data was cleared. Default credentials are active now.");
+          });
+        }
 
         const roleSelect = qs("#role-select");
         if (roleSelect) {
