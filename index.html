@@ -1129,6 +1129,7 @@
       let saveTimer = null;
       let supabaseSessionReady = null;
       let forceClearDataPending = false;
+      let authUsersReady = false;
 
       const roles = {
         chairman: {
@@ -1205,6 +1206,13 @@
 
       function getPersistableState() {
         return {
+          users: appUsers.map((u) => ({
+            id: u.id,
+            username: u.username,
+            name: u.name,
+            role: u.role,
+            password: u.password
+          })),
           funds: state.funds,
           expenses: state.expenses,
           tasks: state.tasks,
@@ -1221,6 +1229,23 @@
 
       function applyPersistedState(payload) {
         if (!payload || typeof payload !== "object") return;
+        if (Array.isArray(payload.users) && payload.users.length) {
+          const normalizedUsers = payload.users
+            .filter((u) => u && u.id && u.username && u.role && u.password)
+            .map((u) => ({
+              id: String(u.id),
+              username: String(u.username),
+              name: String(u.name || u.username),
+              role: String(u.role),
+              password: String(u.password)
+            }))
+            .filter((u) => ["chairman", "treasurer", "coordinator", "sub"].includes(u.role));
+
+          if (normalizedUsers.length) {
+            appUsers.length = 0;
+            normalizedUsers.forEach((u) => appUsers.push(u));
+          }
+        }
         state.funds = Array.isArray(payload.funds) ? payload.funds : [];
         state.expenses = Array.isArray(payload.expenses) ? payload.expenses : [];
         state.tasks = Array.isArray(payload.tasks) ? payload.tasks : [];
@@ -1282,6 +1307,7 @@
           "tasks",
           "notifications",
           "subCoordinators",
+          "users",
           "taskRequests",
           "taskLogs",
           "chairmanRequests",
@@ -1536,6 +1562,15 @@
         refresh();
       }
 
+      async function bootstrapLoginUsers() {
+        try {
+          await ensureSupabaseSession();
+          await loadRemoteState();
+        } finally {
+          authUsersReady = true;
+        }
+      }
+
       function bindAuth() {
         const form = qs("#login-form");
         const usernameInput = qs("#login-username");
@@ -1547,6 +1582,10 @@
 
         form.addEventListener("submit", async (e) => {
           e.preventDefault();
+          if (!authUsersReady) {
+            errorEl.textContent = "Syncing user credentials... Please wait 2-3 seconds and try again.";
+            return;
+          }
           const formData = new FormData(form);
           const enteredUsername = String(formData.get("username") || "").trim();
           const username = enteredUsername.toLowerCase();
@@ -3066,6 +3105,7 @@
       loadLocalState();
       applyOneTimeDataClear();
       ensureSupabaseSession();
+      bootstrapLoginUsers();
       bindAuth();
       qs("#auth-shell").classList.remove("hidden");
       qs("#app-root").classList.add("hidden");
