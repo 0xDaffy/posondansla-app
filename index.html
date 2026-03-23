@@ -602,7 +602,9 @@
           <input id="login-username" name="username" placeholder="Username" class="full" required />
           <input id="login-password" name="password" type="password" placeholder="Password" required />
           <button class="btn" type="submit">Login</button>
+          <button class="btn secondary" type="button" id="login-sync-check">Check Sync</button>
           <div id="login-error" class="full" style="color: #b64343; font-size: 0.88rem"></div>
+          <div id="login-sync-status" class="full subtext"></div>
         </form>
       </div>
     </div>
@@ -1392,6 +1394,38 @@
         return new Date().toISOString().slice(0, 10);
       }
 
+      function setLoginSyncStatus(message, color = "#6e6357") {
+        const el = qs("#login-sync-status");
+        if (!el) return;
+        el.textContent = message;
+        el.style.color = color;
+      }
+
+      async function runSyncDiagnostics() {
+        if (!supabaseClient) {
+          setLoginSyncStatus("Sync check: Supabase client is missing in this build.", "#b64343");
+          return;
+        }
+        setLoginSyncStatus("Sync check: connecting to Supabase...");
+        const sessionOk = await ensureSupabaseSession();
+        if (!sessionOk) {
+          setLoginSyncStatus("Sync check failed: anonymous auth/session could not start.", "#b64343");
+          return;
+        }
+        const { data, error } = await supabaseClient
+          .from("app_state")
+          .select("updated_at")
+          .eq("id", REMOTE_STATE_ID)
+          .maybeSingle();
+        if (error) {
+          setLoginSyncStatus(`Sync check failed: ${error.message}`, "#b64343");
+          return;
+        }
+        remoteStateReady = true;
+        const updatedAt = data?.updated_at ? new Date(data.updated_at).toLocaleString() : "no cloud row yet";
+        setLoginSyncStatus(`Sync OK. Cloud state timestamp: ${updatedAt}`, "#287f50");
+      }
+
       function loadSavedAuth() {
         try {
           const raw = localStorage.getItem("pdms_user_auth");
@@ -1564,10 +1598,12 @@
 
       async function bootstrapLoginUsers() {
         try {
+          setLoginSyncStatus("Starting credential sync...");
           await ensureSupabaseSession();
           await loadRemoteState();
           // Cloud state is the source of truth for cross-device credentials.
           saveLocalState();
+          setLoginSyncStatus("Credentials synced from cloud.", "#287f50");
         } finally {
           authUsersReady = true;
         }
@@ -1578,9 +1614,15 @@
         const usernameInput = qs("#login-username");
         const passwordInput = qs("#login-password");
         const errorEl = qs("#login-error");
+        const syncCheckBtn = qs("#login-sync-check");
 
         if (usernameInput) usernameInput.addEventListener("input", () => errorEl && (errorEl.textContent = ""));
         if (passwordInput) passwordInput.addEventListener("input", () => errorEl && (errorEl.textContent = ""));
+        if (syncCheckBtn) {
+          syncCheckBtn.addEventListener("click", async () => {
+            await runSyncDiagnostics();
+          });
+        }
 
         form.addEventListener("submit", async (e) => {
           e.preventDefault();
@@ -1607,7 +1649,9 @@
             });
           }
           if (!user || user.password !== password) {
-            errorEl.textContent = "Invalid username or password.";
+            errorEl.textContent = remoteStateReady
+              ? "Invalid username or password."
+              : "Invalid credentials. Cloud sync may be unavailable on this device.";
             return;
           }
           if (errorEl) errorEl.textContent = "";
