@@ -1134,6 +1134,7 @@
       let saveTimer = null;
       let supabaseSessionReady = null;
       let authUsersReady = false;
+      let remoteStateReady = false;
 
       const roles = {
         chairman: {
@@ -1315,11 +1316,12 @@
       }
 
       async function loadRemoteState() {
-        if (!supabaseClient) return;
+        if (!supabaseClient) return false;
         const ready = await ensureSupabaseSession();
-        if (!ready) return;
+        if (!ready) return false;
         const { data, error } = await supabaseClient.from("app_state").select("data").eq("id", REMOTE_STATE_ID).maybeSingle();
-        if (error) return;
+        if (error) return false;
+        remoteStateReady = true;
         if (data?.data) {
           const localPayload = getPersistableState();
           const remoteHasData = hasAnyData(data.data);
@@ -1329,22 +1331,27 @@
             saveLocalState();
           }
         }
+        return true;
       }
 
       async function saveRemoteState() {
-        if (!supabaseClient) return;
+        if (!supabaseClient) return true;
         const ready = await ensureSupabaseSession();
-        if (!ready) return;
+        if (!ready) return false;
         const payload = getPersistableState();
-        await supabaseClient
+        const { error } = await supabaseClient
           .from("app_state")
           .upsert({ id: REMOTE_STATE_ID, data: payload, updated_at: new Date().toISOString() }, { onConflict: "id" });
+        if (error) return false;
+        remoteStateReady = true;
+        return true;
       }
 
       function queueRemoteSave() {
         saveLocalState();
         if (isHydratingRemote) return;
         if (!supabaseClient) return;
+        if (!remoteStateReady) return;
         if (saveTimer) clearTimeout(saveTimer);
         saveTimer = setTimeout(() => {
           saveRemoteState();
@@ -1585,11 +1592,20 @@
           const enteredUsername = String(formData.get("username") || "").trim();
           const username = enteredUsername.toLowerCase();
           const password = String(formData.get("password") || "");
-          const user = appUsers.find((u) => {
+          let user = appUsers.find((u) => {
             const userMatch = u.username.toLowerCase() === username;
             const nameMatch = u.name.toLowerCase() === username;
             return userMatch || nameMatch;
           });
+          if (!user || user.password !== password) {
+            // Retry with fresh cloud credentials before failing login.
+            await loadRemoteState();
+            user = appUsers.find((u) => {
+              const userMatch = u.username.toLowerCase() === username;
+              const nameMatch = u.name.toLowerCase() === username;
+              return userMatch || nameMatch;
+            });
+          }
           if (!user || user.password !== password) {
             errorEl.textContent = "Invalid username or password.";
             return;
@@ -2925,7 +2941,7 @@
           refresh();
         });
 
-        qs("#password-form").addEventListener("submit", (e) => {
+        qs("#password-form").addEventListener("submit", async (e) => {
           e.preventDefault();
           const me = appUsers.find((u) => u.id === state.currentUserId);
           if (!me) return;
@@ -2980,7 +2996,12 @@
           renderCurrentUserChip();
           // Ensure credential changes are synced cross-device immediately.
           saveLocalState();
-          saveRemoteState();
+          const syncOk = await saveRemoteState();
+          if (!syncOk) {
+            msg.textContent = "Credentials changed locally, but cloud sync failed. Retry with internet.";
+            msg.style.color = "#b64343";
+            return;
+          }
           msg.textContent = "Credentials updated successfully.";
           msg.style.color = "#287f50";
           e.target.reset();
