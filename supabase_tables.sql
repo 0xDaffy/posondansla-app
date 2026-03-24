@@ -288,15 +288,15 @@ create policy "chairman_requests update chairman" on public.chairman_requests
 -- App state policies (anon/client sync)
 drop policy if exists "app_state select all" on public.app_state;
 create policy "app_state select all" on public.app_state
-  for select using (auth.uid() is not null);
+  for select using (true);
 
 drop policy if exists "app_state insert all" on public.app_state;
 create policy "app_state insert all" on public.app_state
-  for insert with check (auth.uid() is not null);
+  for insert with check (true);
 
 drop policy if exists "app_state update all" on public.app_state;
 create policy "app_state update all" on public.app_state
-  for update using (auth.uid() is not null);
+  for update using (true);
 
 -- Storage bucket for bill photos
 insert into storage.buckets (id, name, public)

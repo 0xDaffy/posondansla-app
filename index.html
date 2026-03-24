@@ -1319,9 +1319,15 @@
 
       async function loadRemoteState() {
         if (!supabaseClient) return false;
-        const ready = await ensureSupabaseSession();
-        if (!ready) return false;
-        const { data, error } = await supabaseClient.from("app_state").select("data").eq("id", REMOTE_STATE_ID).maybeSingle();
+        let { data, error } = await supabaseClient.from("app_state").select("data").eq("id", REMOTE_STATE_ID).maybeSingle();
+        // Fallback: if this project still enforces auth on app_state, try anonymous session once.
+        if (error) {
+          const ready = await ensureSupabaseSession();
+          if (!ready) return false;
+          const retry = await supabaseClient.from("app_state").select("data").eq("id", REMOTE_STATE_ID).maybeSingle();
+          data = retry.data;
+          error = retry.error;
+        }
         if (error) return false;
         remoteStateReady = true;
         if (data?.data) {
@@ -1338,12 +1344,19 @@
 
       async function saveRemoteState() {
         if (!supabaseClient) return true;
-        const ready = await ensureSupabaseSession();
-        if (!ready) return false;
         const payload = getPersistableState();
-        const { error } = await supabaseClient
+        let { error } = await supabaseClient
           .from("app_state")
           .upsert({ id: REMOTE_STATE_ID, data: payload, updated_at: new Date().toISOString() }, { onConflict: "id" });
+        // Fallback: if auth is required by policy, try anonymous session once.
+        if (error) {
+          const ready = await ensureSupabaseSession();
+          if (!ready) return false;
+          const retry = await supabaseClient
+            .from("app_state")
+            .upsert({ id: REMOTE_STATE_ID, data: payload, updated_at: new Date().toISOString() }, { onConflict: "id" });
+          error = retry.error;
+        }
         if (error) return false;
         remoteStateReady = true;
         return true;
@@ -1407,22 +1420,30 @@
           return;
         }
         setLoginSyncStatus("Sync check: connecting to Supabase...");
-        const sessionOk = await ensureSupabaseSession();
-        if (!sessionOk) {
-          setLoginSyncStatus("Sync check failed: anonymous auth/session could not start.", "#b64343");
-          return;
-        }
         const { data, error } = await supabaseClient
           .from("app_state")
           .select("updated_at")
           .eq("id", REMOTE_STATE_ID)
           .maybeSingle();
-        if (error) {
-          setLoginSyncStatus(`Sync check failed: ${error.message}`, "#b64343");
+        if (!error) {
+          remoteStateReady = true;
+          const updatedAt = data?.updated_at ? new Date(data.updated_at).toLocaleString() : "no cloud row yet";
+          setLoginSyncStatus(`Sync OK. Cloud state timestamp: ${updatedAt}`, "#287f50");
+          return;
+        }
+        // Fallback path for auth-required projects.
+        const sessionOk = await ensureSupabaseSession();
+        if (!sessionOk) {
+          setLoginSyncStatus("Sync check failed: direct read blocked and anonymous session could not start.", "#b64343");
+          return;
+        }
+        const retry = await supabaseClient.from("app_state").select("updated_at").eq("id", REMOTE_STATE_ID).maybeSingle();
+        if (retry.error) {
+          setLoginSyncStatus(`Sync check failed: ${retry.error.message}`, "#b64343");
           return;
         }
         remoteStateReady = true;
-        const updatedAt = data?.updated_at ? new Date(data.updated_at).toLocaleString() : "no cloud row yet";
+        const updatedAt = retry.data?.updated_at ? new Date(retry.data.updated_at).toLocaleString() : "no cloud row yet";
         setLoginSyncStatus(`Sync OK. Cloud state timestamp: ${updatedAt}`, "#287f50");
       }
 
@@ -1599,7 +1620,6 @@
       async function bootstrapLoginUsers() {
         try {
           setLoginSyncStatus("Starting credential sync...");
-          await ensureSupabaseSession();
           await loadRemoteState();
           // Cloud state is the source of truth for cross-device credentials.
           saveLocalState();
